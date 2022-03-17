@@ -141,3 +141,5 @@ cython_debug/
 # project settings
 secrets.json
 .idea/
+/media/
+
