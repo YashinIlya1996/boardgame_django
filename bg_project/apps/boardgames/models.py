@@ -3,10 +3,10 @@ from django.db import models
 
 class BoardGame(models.Model):
     title = models.CharField(max_length=255, null=True, blank=True)
-    tesera_alias = models.SlugField(max_length=70, unique=True)
+    tesera_alias = models.SlugField(max_length=70)
     description = models.TextField(null=True, blank=True)
     release_year = models.PositiveSmallIntegerField(null=True, blank=True)
-    bgg_rating = models.DecimalField(max_digits=4, decimal_places=3, blank=True, null=True)
+    bgg_rating = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
     tesera_id = models.IntegerField(unique=True)
     avg_game_time = models.PositiveSmallIntegerField(blank=True, null=True)
     min_players_count = models.PositiveSmallIntegerField(blank=True, null=True)

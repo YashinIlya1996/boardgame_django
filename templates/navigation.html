@@ -1,0 +1,13 @@
+<div class="nav-container">
+    <a href="#"><div class="nav-item">Игры</div></a>
+    <a href="#"><div class="nav-item">Встречи</div></a>
+    <a href="#"><div class="nav-item">Wishlist</div></a>
+    <a href="#"><div class="nav-item">Мои партии</div></a>
+    <a href="#"><div class="nav-item">Статистика</div></a>
+    {% if not user.is_authenticated %}
+        <a href="#"><div class="nav-item">Вход</div></a>
+        <a href="#"><div class="nav-item">Регистрация</div></a>
+    {% else %}
+        <a href="#"><div class="nav-item">Профиль</div></a>
+    {% endif %}
+</div>

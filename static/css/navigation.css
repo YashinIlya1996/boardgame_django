@@ -1,0 +1,34 @@
+* {
+    font-family: "Roboto Light", sans-serif;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    background-color: darkslategrey;
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    text-align: center;
+    font-size: 32px;
+    z-index: 1;
+}
+
+a {
+    text-decoration: none;
+}
+
+.nav-item {
+    color: #bbffdd;
+    box-sizing: border-box;
+    padding: 0.7em;
+    background-color: seagreen;
+    min-width: 230px;
+    margin: 0px 10px;
+}
+
+.nav-item:hover {
+    background: #bbffdd;
+    color: seagreen;
+}
