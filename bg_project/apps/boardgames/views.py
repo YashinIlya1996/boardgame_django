@@ -1,5 +1,8 @@
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
+from django.views.generic import ListView
+from django.db.models import F, Q
+
 from .models import BoardGame
 
 
@@ -42,9 +45,17 @@ def test(request):
                                  tesera_id=game.get('tesera_id'),
                                  photo="boardgames/main_bg_photo/" + alias + extension if photo_url else None
                                  )
-        print(f"Добавлена: {alias}, завершено на {num/games_count*100:.2f}% ({num} / {games_count})")
+        print(f"Добавлена: {alias}, завершено на {num / games_count * 100:.2f}% ({num} / {games_count})")
     return HttpResponse(f"В базу добавлено {games_count} игр")
 
 
 def index(request):
     return render(request, 'boardgames/index.html')
+
+
+class AllGames(ListView):
+    template_name = 'boardgames/all_games.html'
+    queryset = BoardGame.objects.order_by(
+        F('bgg_rating').desc(nulls_last=True), F('release_year').desc(nulls_last=True))
+    context_object_name = 'all_games'
+    paginate_by = 10

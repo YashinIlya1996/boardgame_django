@@ -1,0 +1,19 @@
+.paginate {
+    text-align: center;
+    font-size: 24px;
+    margin: 10px auto;
+}
+
+.paginate-item {
+    border: 3px solid darkslategrey;
+    color: #bbffdd;
+    display: inline-block;
+    margin: 1px;
+    padding: 10px;
+    background-color: seagreen;
+    border-radius: 10px;
+}
+
+.paginate-item a {
+    color: #bbffdd;
+}

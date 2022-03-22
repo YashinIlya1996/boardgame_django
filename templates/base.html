@@ -9,7 +9,9 @@
     {% block css_addition %} {% endblock %}
 </head>
 <body style="margin: 0; box-sizing: border-box">
-{% include 'navigation.html' %}
+{% block nav %}
+    {% include 'navigation.html' %}
+{% endblock %}
 {% block content %}
 {% endblock %}
 </body>

@@ -1,0 +1,46 @@
+{% if page.has_other_pages %}
+<div class="paginate">
+    {% if page.number > 3 %}
+    <div class="paginate-item">
+        <a href="?page=1">1</a>
+    </div>
+    ...
+    {% endif %}
+
+    {% if page.number > 2 %}
+    <div class="paginate-item">
+        <a href="?page={{ page.number|add:-2 }}">{{ page.number|add:-2 }}</a>
+    </div>
+    {% endif %}
+
+    {% if page.has_previous %}
+    <div class="paginate-item">
+        <a href="?page={{ page.previous_page_number }}">{{ page.previous_page_number }}</a>
+    </div>
+    {% endif %}
+
+
+    <div class="paginate-item" style="background-color: #eee; color: #333">
+        {{ page.number }}
+    </div>
+
+    {% if page.has_next %}
+    <div class="paginate-item">
+        <a href="?page={{ page.next_page_number }}">{{ page.next_page_number }}</a>
+    </div>
+    {% endif %}
+
+    {% if page.number <= page.paginator.num_pages|add:-2 %}
+    <div class="paginate-item">
+        <a href="?page={{ page.number|add:2 }}">{{ page.number|add:2 }}</a>
+    </div>
+    {% endif %}
+
+    {% if page.number < page.paginator.num_pages|add:-2 %}
+        ...
+    <div class="paginate-item">
+        <a href="?page={{ page.paginator.num_pages }}">{{ paginator.num_pages }}</a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}

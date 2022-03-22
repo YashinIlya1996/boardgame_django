@@ -3,7 +3,6 @@
 }
 
 .nav-container {
-    display: flex;
     justify-content: center;
     flex-wrap: wrap;
     background-color: darkslategrey;
@@ -11,7 +10,7 @@
     top: 0;
     width: 100vw;
     text-align: center;
-    font-size: 32px;
+    font-size: 24px;
     z-index: 1;
 }
 
@@ -22,10 +21,12 @@ a {
 .nav-item {
     color: #bbffdd;
     box-sizing: border-box;
-    padding: 0.7em;
+    padding: 0.5em;
     background-color: seagreen;
-    min-width: 230px;
-    margin: 0px 10px;
+    border-radius: 10px;
+    min-width: 12rem;
+    margin: 5px 10px;
+    display: inline-block;
 }
 
 .nav-item:hover {

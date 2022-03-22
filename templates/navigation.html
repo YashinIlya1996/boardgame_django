@@ -1,5 +1,5 @@
 <div class="nav-container">
-    <a href="#"><div class="nav-item">Игры</div></a>
+    <a href="{% url "all_games" %}"><div class="nav-item">Игры</div></a>
     <a href="#"><div class="nav-item">Встречи</div></a>
     <a href="#"><div class="nav-item">Wishlist</div></a>
     <a href="#"><div class="nav-item">Мои партии</div></a>
@@ -9,5 +9,7 @@
         <a href="#"><div class="nav-item">Регистрация</div></a>
     {% else %}
         <a href="#"><div class="nav-item">Профиль</div></a>
+        <a href="#"><div class="nav-item">Выход</div></a>
     {% endif %}
 </div>
+<div style="margin-top: 5rem"></div>
