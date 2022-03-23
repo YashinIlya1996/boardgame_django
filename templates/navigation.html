@@ -1,15 +1,18 @@
 <div class="nav-container">
+    <a href="{% url "index" %}"><div class="nav-item">Главная</div></a>
     <a href="{% url "all_games" %}"><div class="nav-item">Игры</div></a>
     <a href="#"><div class="nav-item">Встречи</div></a>
-    <a href="#"><div class="nav-item">Wishlist</div></a>
-    <a href="#"><div class="nav-item">Мои партии</div></a>
-    <a href="#"><div class="nav-item">Статистика</div></a>
+    {% if user.is_authenticated %}
+        <a href="#"><div class="nav-item">Wishlist</div></a>
+        <a href="#"><div class="nav-item">Мои партии</div></a>
+        <a href="#"><div class="nav-item">Статистика</div></a>
+    {% endif %}
     {% if not user.is_authenticated %}
-        <a href="#"><div class="nav-item">Вход</div></a>
-        <a href="#"><div class="nav-item">Регистрация</div></a>
+        <a href="{% url "log_in" %}"><div class="nav-item">Вход</div></a>
+        <a href="{% url "sign_up" %}"><div class="nav-item">Регистрация</div></a>
     {% else %}
         <a href="#"><div class="nav-item">Профиль</div></a>
-        <a href="#"><div class="nav-item">Выход</div></a>
+        <a href="{% url "log_out" %}"><div class="nav-item">Выход</div></a>
     {% endif %}
 </div>
 <div style="margin-top: 5rem"></div>

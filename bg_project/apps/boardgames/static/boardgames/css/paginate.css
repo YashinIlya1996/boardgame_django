@@ -17,3 +17,8 @@
 .paginate-item a {
     color: #bbffdd;
 }
+
+.paginate-item.current {
+    background-color: #eee;
+    color: #333;
+}

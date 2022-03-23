@@ -21,7 +21,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('bg_project.apps.boardgames.urls'))
+    path('accounts/', include('bg_project.apps.users.urls')),
+    path('', include('bg_project.apps.boardgames.urls')),
 ]
 
 # Для доступа к медиа в режиме DEBUG нужно отдельно прописать urls для обработки путей файлов
