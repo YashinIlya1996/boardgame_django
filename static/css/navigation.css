@@ -33,3 +33,12 @@ a {
     background: #bbffdd;
     color: seagreen;
 }
+
+.nav-container .active {
+    margin: 5px 10px 0 10px;
+    background-color: white;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    color: darkslategrey;
+    padding-bottom: 17px;
+}

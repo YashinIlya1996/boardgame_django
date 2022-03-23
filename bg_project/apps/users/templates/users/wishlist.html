@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Wishlist
+{% endblock %}
+
+{% block css_addition %}
+    <link rel="stylesheet" href="{% static 'boardgames/css/list_view.css' %}">
+    <link rel="stylesheet" href="{% static 'boardgames/css/paginate.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'boardgames/pagination.html' with page=page_obj%}
+<!-- Вывод всех игр -->
+<div class="list-container">
+    {% for game in wishlist %}
+        <div class="list-item {% cycle 'odd' 'even' %}">
+            <img src="{{ game.photo.url }}" alt="Ooops">
+            <h1>{{ game.title }}</h1>
+            <p>{{ game.description | truncatewords:100 }}</p>
+        </div>
+    {% empty %}
+        <h1>Ваш wishlist пока ещё пустой</h1>
+    {% endfor %}
+</div>
+
+<!-- Пагинация -->
+{% include 'boardgames/pagination.html' with page=page_obj%}
+{% endblock %}

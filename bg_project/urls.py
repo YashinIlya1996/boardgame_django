@@ -18,11 +18,15 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from bg_project.apps.boardgames.views import index
+from bg_project.apps.users.views import UsersWishlistView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('bg_project.apps.users.urls')),
-    path('', include('bg_project.apps.boardgames.urls')),
+    path('games/', include('bg_project.apps.boardgames.urls')),
+    path('wishlist/', UsersWishlistView.as_view(), name="wishlist"),
+    path('', index, name="index"),
 ]
 
 # Для доступа к медиа в режиме DEBUG нужно отдельно прописать urls для обработки путей файлов
