@@ -6,13 +6,16 @@
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/navigation.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block css_addition %} {% endblock %}
 </head>
-<body style="margin: 0; box-sizing: border-box">
+<body>
 {% block nav %}
     {% include 'navigation.html' %}
 {% endblock %}
-{% block content %}
-{% endblock %}
+<div class="content-block">
+    {% block content %}
+    {% endblock %}
+</div>
 </body>
 </html>

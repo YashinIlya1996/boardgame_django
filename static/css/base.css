@@ -1,0 +1,50 @@
+body {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.content-block {
+    max-width: 1440px;
+    margin: auto;
+    box-sizing: border-box;
+}
+
+input[type=text],
+input[type=email],
+input[type=password],
+select, textarea {
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #aaa;
+    resize: none;
+    padding: 10px;
+    background-color: #e3e3e3;
+    box-sizing: border-box;
+}
+
+input[type=submit],
+input[type=button],
+input[type=reset] {
+    background-color: seagreen;
+    border-radius: 5px;
+    color: #bbffdd;
+    width: 100%;
+    font-size: 1.5em;
+    padding: 8px;
+    margin-top: 15px;
+}
+
+input[type=submit]:hover,
+input[type=button]:hover,
+input[type=reset]:hover {
+    background: #bbffdd;
+    color: seagreen;
+}
+
+.error-text {
+    color: darkred;
+}
+
+.info-text {
+    color: dodgerblue;
+}

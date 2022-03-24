@@ -3,12 +3,12 @@
 {% block title %}Регистрация{% endblock %}
 
 {% block content %}
+    <div style="max-width: 600px; margin: auto">
     <h1>Регистрация</h1>
     <form action="" method="post">
         {% csrf_token %}
-        <table>
-            {{ form.as_table }}
-        </table>
+            {{ form.as_p }}
         <input type="submit" value="Регистрация">
     </form>
+    </div>
 {% endblock %}
