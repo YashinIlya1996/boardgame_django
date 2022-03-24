@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.db.models import F, Q
 
 from .models import BoardGame
@@ -59,3 +59,14 @@ class AllGames(ListView):
         F('bgg_rating').desc(nulls_last=True), F('release_year').desc(nulls_last=True))
     context_object_name = 'all_games'
     paginate_by = 10
+
+
+class DetailGame(DetailView):
+    template_name = "boardgames/detail_game.html"
+    context_object_name = "game"
+    slug_url_kwarg = "alias"
+    slug_field = "tesera_alias"
+
+    def get_queryset(self):
+        return BoardGame.objects.filter(tesera_alias=self.kwargs.get("alias"))
+

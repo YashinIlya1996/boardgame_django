@@ -17,7 +17,7 @@
     {% for game in all_games %}
         <div class="list-item {% cycle 'odd' 'even' %}">
             <img src="{{ game.photo.url }}" alt="Ooops">
-            <h1>{{ game.title }}</h1>
+            <a href="{{ game.get_absolute_url }}"><h1>{{ game.title }}</h1></a>
             <p>{{ game.description | truncatewords:100 }}</p>
         </div>
     {% empty %}

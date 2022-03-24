@@ -1,0 +1,39 @@
+.detail-container {
+    max-width: 1200px;
+    margin: auto;
+    border-radius: 10px;
+    border: 2px solid grey;
+}
+
+
+.detail-container hr {
+    margin: 0;
+}
+
+.detail-body {
+    display: flex;
+    flex-direction: row;
+}
+
+.detail-header {
+    text-align: center;
+}
+
+.detail-left {
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 30px;
+    text-align: center;
+    font-size: 24px;
+}
+
+.detail-left img {
+    margin-bottom: auto;
+}
+
+.detail-main {
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 15px;
+    border-left: 1px solid grey;
+}

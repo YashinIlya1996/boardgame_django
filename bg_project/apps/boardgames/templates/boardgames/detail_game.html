@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ game.title }}{% endblock %}
+
+{% block css_addition %}
+    <link rel="stylesheet" href="{% static "boardgames/css/detail_view.css" %}">
+{% endblock %}
+
+{% block content %}
+    <div class="detail-container">
+        <div class="detail-header">
+            <h1>{{ game.title }}</h1>
+        </div>
+        <hr>
+        <div class="detail-body">
+            <div class="detail-left">
+                <img src="{{ game.photo.url }}" alt="Ooooops..">
+                <hr>
+                <span><img src="{% static "img/rating_icon.png" %}" alt="Oooops.." height="40px"></span>
+                <span><strong>{{ game.bgg_rating|default_if_none:" - " }}</strong></span>
+            </div>
+            <div class="detail-main">
+                <h3>Описание:</h3>
+                <p>{{ game.description }}</p>
+            </div>
+        </div>
+        <div style="clear: both"></div>
+
+    </div>
+{% endblock %}
