@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load boardgames_custom_filters %}
 
 {% block title %}
     Wishlist
@@ -17,8 +18,16 @@
     {% for game in wishlist %}
         <div class="list-item {% cycle 'odd' 'even' %}">
             <img src="{{ game.photo.url }}" alt="Ooops">
-            <h1>{{ game.title }}</h1>
+            <a href="{{ game.get_absolute_url }}"><h1>{{ game.title }}</h1></a>
             <p>{{ game.description | truncatewords:100 }}</p>
+            <form action="{% url "wl_adding" game.tesera_alias %}">
+                <input type="hidden" name="next" value="{{ game|url_with_anchor:request }}">
+                {% if game in users_wl %}
+                    <input type="submit" value="Удалить из Wishlist">
+                {% else %}
+                    <input type="submit" value="Добавить в Wishlist">
+                {% endif %}
+            </form>
         </div>
     {% empty %}
         <h1>Ваш wishlist пока ещё пустой</h1>

@@ -19,13 +19,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from bg_project.apps.boardgames.views import index
-from bg_project.apps.users.views import UsersWishlistView
+from bg_project.apps.users.views import UsersWishlistView, add_to_remove_from_wishlist
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('bg_project.apps.users.urls')),
     path('games/', include('bg_project.apps.boardgames.urls')),
     path('wishlist/', UsersWishlistView.as_view(), name="wishlist"),
+    path('add-to-wl/<alias>', add_to_remove_from_wishlist, name="wl_adding"),
     path('', index, name="index"),
 ]
 

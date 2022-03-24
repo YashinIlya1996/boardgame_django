@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from django.db.models import F, Q
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import BoardGame
 
@@ -56,9 +57,24 @@ def index(request):
 class AllGames(ListView):
     template_name = 'boardgames/all_games.html'
     queryset = BoardGame.objects.order_by(
-        F('bgg_rating').desc(nulls_last=True), F('release_year').desc(nulls_last=True))
+        F('bgg_rating').desc(nulls_last=True), F('release_year').desc(nulls_last=True), F('tesera_alias'))
     context_object_name = 'all_games'
     paginate_by = 10
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """
+        Если пользователь авторизован, в контекст шаблона добавляем его вишлист,
+        чтобы правильно обрабатывать состояние кнопки "Добавить в/Удалить из вишлист(а)"
+        """
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            user = self.request.user
+            try:
+                users_wl = user.wishlist.games.all()
+            except ObjectDoesNotExist:
+                users_wl = []
+            context["users_wl"] = users_wl
+        return context
 
 
 class DetailGame(DetailView):
