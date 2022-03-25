@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from django.db.models import F, Q
@@ -50,16 +50,31 @@ def test(request):
     return HttpResponse(f"В базу добавлено {games_count} игр")
 
 
+def clear_search_data(request):
+    """
+    Удаляет из сессии поисковый запрос и редиректит на предыдущую страницу
+    """
+    request.session["search"] = None
+    return redirect(request.GET.get("next") or "all_games")
+
+
 def index(request):
     return render(request, 'boardgames/index.html')
 
 
 class AllGames(ListView):
     template_name = 'boardgames/all_games.html'
-    queryset = BoardGame.objects.order_by(
-        F('bgg_rating').desc(nulls_last=True), F('release_year').desc(nulls_last=True), F('tesera_alias'))
     context_object_name = 'all_games'
     paginate_by = 10
+
+    def get_queryset(self):
+        search = self.request.GET.get("search") or self.request.session.get("search")
+        self.request.session["search"] = search
+        queryset = BoardGame.objects.order_by(
+            F('bgg_rating').desc(nulls_last=True), F('release_year').desc(nulls_last=True), F('tesera_alias'))
+        if search:
+            queryset = queryset.filter(title__icontains=search)
+        return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """

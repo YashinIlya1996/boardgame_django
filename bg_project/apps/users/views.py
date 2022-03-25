@@ -86,3 +86,4 @@ def add_to_remove_from_wishlist(request, alias):
         else:
             user.wishlist.games.remove(game)
     return redirect(request.GET.get("next"), "all_games")
+    # TODO реализовать при удалении со страницы Wishlist правильный редирект на Wishlist (поковыряться в фильтре)
