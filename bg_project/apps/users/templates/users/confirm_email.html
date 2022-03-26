@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <div style="margin: auto; max-width: 600px">
+        <h3 style="text-align: center">Для завершения регистрации введите проверочный код, отправленный на Ваш email</h3>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ confirm_email.as_p }}
+            <input type="submit" value="Ввести код">
+        </form>
+    </div>
+{% endblock %}

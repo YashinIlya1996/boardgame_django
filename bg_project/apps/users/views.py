@@ -3,6 +3,8 @@ from django.views.generic.list import ListView
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import EmailMessage
+from django.conf import settings
 
 from . import forms
 from .models import WishList
@@ -16,7 +18,8 @@ def log_in(request):
             user = login_form.get_user()
             login(request, user)
             return redirect(request.GET.get("next") or "index")
-    login_form = forms.UserLoginForm()
+    else:
+        login_form = forms.UserLoginForm()
     return render(request, template_name="users/login.html", context={"form": login_form})
 
 
@@ -30,6 +33,10 @@ def sign_up(request):
     else:
         sign_up_form = forms.MyUserCreationForms()
     return render(request, template_name="users/sign_up.html", context={"form": sign_up_form})
+
+
+def confirm_signup(request):
+    pass
 
 
 class UsersWishlistView(LoginRequiredMixin, ListView):
@@ -69,7 +76,6 @@ class UsersWishlistView(LoginRequiredMixin, ListView):
 def add_to_remove_from_wishlist(request, alias):
     """
     Обработчик кнопки добавления (удаления) игры в (из) вишлист(а).
-    Если у пользователя еще не создан ВЛ - создает его.
     Если игра уже в ВЛ (запрос на удаление игры из ВЛ) - удаляет ее из ВЛ.
     Если каким-то чудом запрос на добавление послал аноним - редирект на логин.
     """
@@ -77,8 +83,6 @@ def add_to_remove_from_wishlist(request, alias):
         return redirect("log_in")
     else:
         user = request.user
-        if not hasattr(user, "wishlist"):
-            WishList.objects.create(user=user)
         game = BoardGame.objects.get(tesera_alias=alias)
         wl = user.wishlist
         if game not in wl.games.all():

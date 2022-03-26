@@ -30,8 +30,7 @@ input[type=button],
 input[type=reset] {
     background-color: seagreen;
     border-radius: 5px;
-    color: #bbff<input type="button" value="Сбросить"
-                   style="width: 45%; display: inline-block; float: right">dd;
+    color: #bbffdd;
     width: 100%;
     font-size: 1.3em;
     padding: 8px;

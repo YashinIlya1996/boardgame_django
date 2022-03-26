@@ -7,5 +7,5 @@ register = Library()
 def url_with_anchor(value, request):
     anchor = f"#{value.tesera_alias}"
     page = request.GET.get('page', 1)
-    url = request.path + f"?page={page}" + anchor
+    url = request.get_full_path() + anchor
     return url

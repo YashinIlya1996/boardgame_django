@@ -80,6 +80,7 @@ class AllGames(ListView):
         """
         Если пользователь авторизован, в контекст шаблона добавляем его вишлист,
         чтобы правильно обрабатывать состояние кнопки "Добавить в/Удалить из вишлист(а)"
+        Также добавляет строку поиска в сессии (при наличии)
         """
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
@@ -89,6 +90,9 @@ class AllGames(ListView):
             except ObjectDoesNotExist:
                 users_wl = []
             context["users_wl"] = users_wl
+        search = self.request.session.get("search")
+        if search:
+            context["search_str"] = search
         return context
 
 
@@ -100,4 +104,3 @@ class DetailGame(DetailView):
 
     def get_queryset(self):
         return BoardGame.objects.filter(tesera_alias=self.kwargs.get("alias"))
-
