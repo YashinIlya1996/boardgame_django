@@ -30,6 +30,6 @@ class Profile(models.Model):
     email_confirmed = models.BooleanField(default=False)
     friendlist = models.ManyToManyField(to=settings.AUTH_USER_MODEL,
                                         related_name="friends")
-    location = models.CharField(max_length=200)
+    location = models.CharField(max_length=200, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True, null=True)

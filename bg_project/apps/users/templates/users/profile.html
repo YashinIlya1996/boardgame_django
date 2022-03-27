@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css_addition %}
+    <link rel="stylesheet" href="{% static "users/css/profile.css" %}">
+{% endblock %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+    {#    Аватарка#}
+    {#    личные данные#}
+    {#    френдлист#}
+    {#    кнопка редактрования профиля#}
+    <div class="main-container" style="justify-content: space-around">
+        <div class="profile-left">
+            <img src="
+                    {% if profile.photo %}{{ profile.photo.url }}{% else %}{% static 'img/no-avatar.png' %}{% endif %}"
+                 alt="Ooops">
+            <p><strong>Имя:     </strong>{{ profile.user.first_name|default:"Не указано" }}</p>
+            <p><strong>Фамилия: </strong>{{ profile.user.last_name|default:"Не указана" }}</p>
+            <p><strong>Email: </strong>{{ profile.user.email|default:"Не указан" }}</p>
+            <p><strong>Пол:     </strong>{{ profile.gender|default:"Не указан" }}</p>
+            <p><strong>Город:   </strong>{{ profile.location|default:"Не указан" }}</p>
+            <a href="#"><input type="button" value="Редактировать"></a>
+        </div>
+        <div class="profile-right">
+            {% if not profile.email_confirmed %}
+                <p style="color: darkred">Внимание, ваш email не подтвержден, некоторые действия могут быть недоступны.</p>
+                <a href="#"><input type="button" value="Подтвердить Email" style="max-width: 30%"></a>
+                <hr>
+            {% endif %}
+            <p><strong>О себе: </strong>{{ profile.bio|default:"Информация не указана" }}</p>
+            <p><strong>Список друзей: </strong></p>
+            {% for friend in friendlist %}
+                <p>{{ friend.username }}</p>
+            {% empty %}
+                <p>Ваш список друзей пока пустой</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

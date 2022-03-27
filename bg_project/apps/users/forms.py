@@ -23,3 +23,4 @@ class MyUserCreationForms(UserCreationForm):
 
 class ConfirmEmailForm(forms.Form):
     code = forms.CharField(widget=forms.TextInput(attrs={"name": "code"}), label="Код подтвержденния")
+

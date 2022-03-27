@@ -1,13 +1,12 @@
-from django.shortcuts import reverse, render, redirect
+from django.shortcuts import reverse, render, redirect, get_object_or_404
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import EmailMessage
-from django.conf import settings
 
 from . import forms
-from .models import WishList
+from .models import WishList, Profile
 from bg_project.apps.boardgames.models import BoardGame
 from .services import apply_search_query_games
 
@@ -92,3 +91,21 @@ def add_to_remove_from_wishlist(request, alias):
             user.wishlist.games.remove(game)
     return redirect(request.GET.get("next"), "all_games")
     # TODO реализовать при удалении со страницы Wishlist правильный редирект на Wishlist (поковыряться в фильтре)
+
+
+class ProfileDetailView(DetailView):
+    model = Profile
+    context_object_name = "profile"
+    template_name = "users/profile.html"
+
+    def get_object(self, queryset=None):
+        """ В качестве аргумента в роуте указан user_id, профиль которого требуется отобразить.
+            Возвращает объект профиля по user_id или поднимает 404 """
+        obj = get_object_or_404(Profile, user_id=self.kwargs["user_id"])
+        return obj
+
+    def get_context_data(self, **kwargs):
+        """ Добавляет в контекст шаблона френдлист пользователя, чтобы не генерировать запрос внутри шаблона """
+        context = super().get_context_data(**kwargs)
+        context["friendlist"] = self.get_object().friendlist.all()
+        return context
