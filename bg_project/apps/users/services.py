@@ -28,3 +28,7 @@ def get_user_profile_media_dir(instance, filename):
     return f"users/{instance.user.id}/profile/{filename}"
 
 
+def apply_search_query_games(queryset, request):
+    search = request.GET.get("search") or request.session.get("search") or ""
+    request.session["search"] = search
+    return queryset.filter(title__icontains=search)

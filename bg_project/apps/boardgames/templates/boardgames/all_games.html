@@ -14,7 +14,7 @@
 {% block content %}
 
     {% if search_str %}
-        <h3>Вот что нашлось по запросу "{{ search_str }}": </h3>
+        <h3 style="text-align: center">Вот что нашлось по запросу "{{ search_str }}": </h3>
     {% endif %}
 
     {% include 'boardgames/pagination.html' with page=page_obj %}
@@ -41,15 +41,7 @@
                 <h1> Увы, ничего не нашлось :( </h1>
             {% endfor %}
         </div>
-        <div class="sidebar">
-            <form action="">
-                <input type="text" name="search">
-                <input type="submit" value="Поиск" style="width: 45%; display: inline-block;">
-                <a href="{% url "clear_search" %}?next={{ request.path }}" ><input type="button" value="Сбросить"
-                          style="width: 45%; display: inline-block; float: right"></a>
-            </form>
-            <h3>Добро пожаловать, {{ user.get_full_name|default:user.username }}</h3>
-        </div>
+        {% include 'sidebar.html' %}
     </div>
     <!-- Пагинация -->
     {% include 'boardgames/pagination.html' with page=page_obj%}

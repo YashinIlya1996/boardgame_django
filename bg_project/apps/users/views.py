@@ -9,6 +9,7 @@ from django.conf import settings
 from . import forms
 from .models import WishList
 from bg_project.apps.boardgames.models import BoardGame
+from .services import apply_search_query_games
 
 
 def log_in(request):
@@ -48,19 +49,17 @@ class UsersWishlistView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         """
-        Передает в queryset игры из вишлиста пользователя, а если ВЛ ещё не создан, то не создает,
-        а передает пустой лист
+        Передает в queryset игры из вишлиста пользователя, применяя, при наличии, фильтр поиска
         """
-        try:
-            games = WishList.objects.get(user=self.request.user).games.all()
-        except ObjectDoesNotExist:
-            games = []
+        games = WishList.objects.get(user=self.request.user).games.all()
+        games = apply_search_query_games(games, self.request)
         return games
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
         Добавляет в контекст шаблона вишлист пользователя,
         чтобы правильно обрабатывать состояние кнопки "Добавить в/Удалить из ВЛ"
+        Также добавляет в контекст текстовый запрос из сессии, при наличии
         """
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
@@ -70,6 +69,8 @@ class UsersWishlistView(LoginRequiredMixin, ListView):
             except ObjectDoesNotExist:
                 users_wl = []
             context["users_wl"] = users_wl
+        if search := self.request.session.get("search"):
+            context["search_str"] = search
         return context
 
 

@@ -51,3 +51,18 @@ input[type=reset]:hover {
 .info-text {
     color: dodgerblue;
 }
+
+/* CSS для сайдбара */
+.sidebar {
+    align-self: start;
+    position: sticky;
+    top: 90px;
+    width: 20%;
+    padding: 10px;
+}
+
+.main-container {
+    display: flex;
+    max-width: 1400px;
+    margin: auto;
+}

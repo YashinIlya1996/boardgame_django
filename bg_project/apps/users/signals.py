@@ -4,7 +4,6 @@
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Profile, WishList
 
@@ -14,16 +13,12 @@ from .models import Profile, WishList
 def create_profile(sender, **kwargs):
     """ Сигнал создает экземпляр Profile, связанный с User, при создании нового User
         Сигнал на удаление не требуется, т.к. Profile on_delete=models.CASCADE """
-    try:
-        Profile.objects.get(user=kwargs['instance'])
-    except ObjectDoesNotExist:
+    if not hasattr(kwargs['instance'], 'profile'):
         Profile.objects.create(user=kwargs['instance'])
 
 
 @receiver(post_save, sender=User)
 def create_wishlist(sender, **kwargs):
     """ Создает Wishlist пользователя при регистрации """
-    try:
-        WishList.objects.get(user=kwargs["instance"])
-    except ObjectDoesNotExist:
+    if not hasattr(kwargs['instance'], 'wishlist'):
         WishList.objects.create(user=kwargs["instance"])

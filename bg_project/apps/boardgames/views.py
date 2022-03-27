@@ -5,6 +5,7 @@ from django.db.models import F, Q
 from django.core.exceptions import ObjectDoesNotExist
 
 from .models import BoardGame
+from bg_project.apps.users.services import apply_search_query_games
 
 
 def test(request):
@@ -68,12 +69,9 @@ class AllGames(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        search = self.request.GET.get("search") or self.request.session.get("search")
-        self.request.session["search"] = search
         queryset = BoardGame.objects.order_by(
             F('bgg_rating').desc(nulls_last=True), F('release_year').desc(nulls_last=True), F('tesera_alias'))
-        if search:
-            queryset = queryset.filter(title__icontains=search)
+        queryset = apply_search_query_games(queryset, self.request)
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
