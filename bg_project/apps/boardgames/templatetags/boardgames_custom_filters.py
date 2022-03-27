@@ -4,8 +4,7 @@ register = Library()
 
 
 @register.filter(name="url_with_anchor")
-def url_with_anchor(value, request):
+def url_with_anchor(value, full_path):
     anchor = f"#{value.tesera_alias}"
-    page = request.GET.get('page', 1)
-    url = request.get_full_path() + anchor
+    url = full_path + anchor
     return url

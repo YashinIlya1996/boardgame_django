@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load boardgames_custom_filters %}
+{% load boardgames_custom_filters boardgames_custom_tags %}
 
 {% block title %}
     Список Игр
@@ -22,21 +22,7 @@
     <div class="main-container">
         <div class="list-container">
             {% for game in all_games %}
-                <div class="list-item {% cycle 'odd' 'even' %}" id="{{ game.tesera_alias }}">
-                    <img src="{{ game.photo.url }}" alt="Ooops">
-                    <a href="{{ game.get_absolute_url }}"><h1>{{ game.title }}</h1></a>
-                    <p>{{ game.description | truncatewords:100 }}</p>
-                    {% if user.is_authenticated %}
-                        <form action="{% url "wl_adding" game.tesera_alias %}">
-                            <input type="hidden" name="next" value="{{ game|url_with_anchor:request }}">
-                            {% if game in users_wl %}
-                                <input type="submit" value="Удалить из Wishlist">
-                            {% else %}
-                                <input type="submit" value="Добавить в Wishlist">
-                            {% endif %}
-                        </form>
-                    {% endif %}
-                </div>
+                {% list_item_game %}
             {% empty %}
                 <h1> Увы, ничего не нашлось :( </h1>
             {% endfor %}
@@ -44,5 +30,5 @@
         {% include 'sidebar.html' %}
     </div>
     <!-- Пагинация -->
-    {% include 'boardgames/pagination.html' with page=page_obj%}
+    {% include 'boardgames/pagination.html' with page=page_obj %}
 {% endblock %}
