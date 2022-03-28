@@ -6,7 +6,7 @@
         <a href="{% url "wishlist" %}"><div class="nav-item {% if request.path == "/wishlist/" %}active{% endif %}">Wishlist</div></a>
         <a href="#"><div class="nav-item">Мои партии</div></a>
         <a href="#"><div class="nav-item">Статистика</div></a>
-        <a href="{% url "profile_detail" user.id %}"><div class="nav-item">Профиль</div></a>
+        <a href="{% url "profile_detail" user.id %}"><div class="nav-item {% if request.path|truncatechars:10 == "/profile/…" %}active{% endif %}">Профиль</div></a>
         <a href="{% url "log_out" %}"><div class="nav-item">Выход</div></a>
     {% else %}
         <a href="{% url "log_in" %}"><div class="nav-item {% if request.path == "/accounts/login/" %}active{% endif %}">Вход</div></a>

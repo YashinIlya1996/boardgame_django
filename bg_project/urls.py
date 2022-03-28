@@ -19,7 +19,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from bg_project.apps.boardgames.views import index
-from bg_project.apps.users.views import UsersWishlistView, add_to_remove_from_wishlist, ProfileDetailView
+from bg_project.apps.users.views import (UsersWishlistView,
+                                         add_to_remove_from_wishlist,
+                                         ProfileDetailView,
+                                         profile_editing)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +31,7 @@ urlpatterns = [
     path('wishlist/', UsersWishlistView.as_view(), name="wishlist"),
     path('add-to-wl/<alias>', add_to_remove_from_wishlist, name="wl_adding"),
     path('profile/<int:user_id>/', ProfileDetailView.as_view(), name="profile_detail"),
+    path('profile/edit/<int:user_id>/', profile_editing, name="profile_editing"),
     path('', index, name="index"),
 ]
 

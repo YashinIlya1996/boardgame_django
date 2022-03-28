@@ -11,21 +11,22 @@
     {#    Аватарка#}
     {#    личные данные#}
     {#    френдлист#}
-    {#    кнопка редактрования профиля#}
+    {#    кнопка редактрования профиля для владельца#}
     <div class="main-container" style="justify-content: space-around">
         <div class="profile-left">
             <img src="
                     {% if profile.photo %}{{ profile.photo.url }}{% else %}{% static 'img/no-avatar.png' %}{% endif %}"
-                 alt="Ooops">
+                 alt="Ooops" style="max-width: 100%">
             <p><strong>Имя:     </strong>{{ profile.user.first_name|default:"Не указано" }}</p>
             <p><strong>Фамилия: </strong>{{ profile.user.last_name|default:"Не указана" }}</p>
+            <p><strong>Username: </strong>{{ profile.user.username }}</p>
             <p><strong>Email: </strong>{{ profile.user.email|default:"Не указан" }}</p>
             <p><strong>Пол:     </strong>{{ profile.gender|default:"Не указан" }}</p>
             <p><strong>Город:   </strong>{{ profile.location|default:"Не указан" }}</p>
-            <a href="#"><input type="button" value="Редактировать"></a>
+            {% if owner %}<a href="{% url "profile_editing" user.id %}"><input type="button" value="Редактировать"></a>{% endif %}
         </div>
         <div class="profile-right">
-            {% if not profile.email_confirmed %}
+            {% if not profile.email_confirmed and owner %}
                 <p style="color: darkred">Внимание, ваш email не подтвержден, некоторые действия могут быть недоступны.</p>
                 <a href="#"><input type="button" value="Подтвердить Email" style="max-width: 30%"></a>
                 <hr>

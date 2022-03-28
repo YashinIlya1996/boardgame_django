@@ -7,11 +7,12 @@ register = template.Library()
 def print_game_in_list(context):
     """ Возвращает представление игры в общем листе при отображении в общем перечне игр
         и в вишлисте пользователя.
-        full_path требуется для редиректа на ту же игру на странице через якорь """
+        full_path требуется для редиректа на ту же игру на странице через якорь.
+        Зависит от контекста! Должен вызываться внутри цикла, где экземпляр BoardGame назван game"""
     full_path = context["request"].get_full_path()
     odd_even = "even" if context["forloop"]["counter"] % 2 else "odd"
     return {"game": context["game"],
             "user": context["user"],
             "full_path": full_path,
-            "users_wl": context["users_wl"],
+            "users_wl": context.get("users_wl"),
             "odd_even": odd_even}

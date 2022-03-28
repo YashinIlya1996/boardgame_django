@@ -2,10 +2,12 @@ from django.shortcuts import reverse, render, redirect, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
-from . import forms
+from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm
 from .models import WishList, Profile
 from bg_project.apps.boardgames.models import BoardGame
 from .services import apply_search_query_games
@@ -13,25 +15,25 @@ from .services import apply_search_query_games
 
 def log_in(request):
     if request.method == 'POST':
-        login_form = forms.UserLoginForm(data=request.POST)
+        login_form = UserLoginForm(data=request.POST)
         if login_form.is_valid():
             user = login_form.get_user()
             login(request, user)
             return redirect(request.GET.get("next") or "index")
     else:
-        login_form = forms.UserLoginForm()
+        login_form = UserLoginForm()
     return render(request, template_name="users/login.html", context={"form": login_form})
 
 
 def sign_up(request):
     if request.method == 'POST':
-        sign_up_form = forms.MyUserCreationForms(data=request.POST)
+        sign_up_form = MyUserCreationForms(data=request.POST)
         if sign_up_form.is_valid():
             user = sign_up_form.save()
             login(request=request, user=user)
             return redirect("index")
     else:
-        sign_up_form = forms.MyUserCreationForms()
+        sign_up_form = MyUserCreationForms()
     return render(request, template_name="users/sign_up.html", context={"form": sign_up_form})
 
 
@@ -93,7 +95,7 @@ def add_to_remove_from_wishlist(request, alias):
     # TODO реализовать при удалении со страницы Wishlist правильный редирект на Wishlist (поковыряться в фильтре)
 
 
-class ProfileDetailView(DetailView):
+class ProfileDetailView(LoginRequiredMixin, DetailView):
     model = Profile
     context_object_name = "profile"
     template_name = "users/profile.html"
@@ -108,4 +110,37 @@ class ProfileDetailView(DetailView):
         """ Добавляет в контекст шаблона френдлист пользователя, чтобы не генерировать запрос внутри шаблона """
         context = super().get_context_data(**kwargs)
         context["friendlist"] = self.get_object().friendlist.all()
+        context["owner"] = self.kwargs["user_id"] == self.request.user.id
         return context
+
+
+@login_required
+def profile_editing(request, user_id):
+    """ Редактирование профиля запрещено пользователям, чей id не совпадает с user_id в роуте
+        При отсутствии новой информации старая не изменяется. """
+    user = User.objects.get(pk=user_id)
+    if request.user.id != user.id:
+        raise PermissionDenied("У Вас нет прав редактировать профиль другого пользователя.")
+    p = Profile.objects.get(user=user)
+    old_data = {"fname": user.first_name,
+                "lname": user.last_name,
+                "location": p.location,
+                "bio": p.bio,
+                "gender": p.gender,
+                "photo": p.photo}
+    if request.method == "POST":
+        form = ProfileEditForm(data=request.POST, files=request.FILES)
+        if form.is_valid():
+            cd = form.cleaned_data
+            user.last_name = cd.get("lname") or old_data["lname"]
+            user.first_name = cd.get("fname") or old_data["fname"]
+            p.location = cd.get("location") or old_data["location"]
+            p.bio = cd.get("bio") or old_data["bio"]
+            p.gender = cd.get("gender") or old_data["gender"]
+            p.photo = cd.get("photo") or old_data["photo"]
+            p.save()
+            user.save()
+            return redirect("profile_detail", user_id)
+    else:
+        form = ProfileEditForm(data=old_data)
+    return render(request, "users/profile_editing.html", context={"form": form})
