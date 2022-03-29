@@ -1,10 +1,20 @@
+# Django импорт
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from django.db.models import F, Q
 from django.core.exceptions import ObjectDoesNotExist
 
+# DRF импорт
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser
+
+# Собственный импорт
 from .models import BoardGame
+from .serializers import BoardGamesListSerializer
+from .services import get_queryset_bg_by_default_ordering
 from bg_project.apps.users.services import apply_search_query_games
 
 
@@ -69,8 +79,7 @@ class AllGames(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = BoardGame.objects.order_by(
-            F('bgg_rating').desc(nulls_last=True), F('release_year').desc(nulls_last=True), F('tesera_alias'))
+        queryset = get_queryset_bg_by_default_ordering()
         queryset = apply_search_query_games(queryset, self.request)
         return queryset
 
@@ -102,3 +111,8 @@ class DetailGame(DetailView):
 
     def get_queryset(self):
         return BoardGame.objects.filter(tesera_alias=self.kwargs.get("alias"))
+
+
+class BoardGameViewSet(viewsets.ModelViewSet):
+    serializer_class = BoardGamesListSerializer
+    queryset = get_queryset_bg_by_default_ordering()

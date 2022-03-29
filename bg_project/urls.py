@@ -18,7 +18,9 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from bg_project.apps.boardgames.views import index
+from rest_framework.urlpatterns import format_suffix_patterns
+
+from bg_project.apps.boardgames.views import index, BoardGameViewSet
 from bg_project.apps.users.views import (UsersWishlistView,
                                          add_to_remove_from_wishlist,
                                          ProfileDetailView,
@@ -26,6 +28,7 @@ from bg_project.apps.users.views import (UsersWishlistView,
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-auth/', include('rest_framework.urls')),
     path('accounts/', include('bg_project.apps.users.urls')),
     path('games/', include('bg_project.apps.boardgames.urls')),
     path('wishlist/', UsersWishlistView.as_view(), name="wishlist"),
@@ -34,6 +37,12 @@ urlpatterns = [
     path('profile/edit/<int:user_id>/', profile_editing, name="profile_editing"),
     path('', index, name="index"),
 ]
+
+# Добавление urlpatterns для ViewSet BoardGame
+urlpatterns += format_suffix_patterns([
+    path('api/v0/games/<int:pk>/', BoardGameViewSet.as_view({'get': 'retrieve'})),
+    path('api/v0/games/', BoardGameViewSet.as_view({'get': 'list'})),
+])
 
 # Для доступа к медиа в режиме DEBUG нужно отдельно прописать urls для обработки путей файлов
 if settings.DEBUG:

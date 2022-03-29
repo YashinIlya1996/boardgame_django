@@ -145,3 +145,4 @@ secrets.json
 all_games.json
 migrations/
 /TODO.txt
+/test.ipynb

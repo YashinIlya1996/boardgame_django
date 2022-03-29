@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'django_extensions',
+    'rest_framework',
 
     'bg_project.apps.boardgames',
     'bg_project.apps.users'
@@ -156,3 +157,9 @@ EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# DRF settings
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'bg_project.apps.boardgames.services.PageNumberPageSizePagination',
+    'PAGE_SIZE': 10,
+}
