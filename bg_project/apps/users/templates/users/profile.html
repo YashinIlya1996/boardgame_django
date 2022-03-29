@@ -23,7 +23,10 @@
             <p><strong>Email: </strong>{{ profile.user.email|default:"Не указан" }}</p>
             <p><strong>Пол:     </strong>{{ profile.gender|default:"Не указан" }}</p>
             <p><strong>Город:   </strong>{{ profile.location|default:"Не указан" }}</p>
-            {% if owner %}<a href="{% url "profile_editing" user.id %}"><input type="button" value="Редактировать"></a>{% endif %}
+            {% if owner %}
+                <a href="{% url "profile_editing" user.id %}"><input type="button" value="Редактировать"></a>
+                <a href="{% url "password_change" %}"><input type="button" value="Изменить пароль"></a>
+            {% endif %}
         </div>
         <div class="profile-right">
             {% if not profile.email_confirmed and owner %}
