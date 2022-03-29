@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 
 from bg_project.apps.boardgames.models import BoardGame
-from .services import get_user_profile_media_dir
+from .services import get_user_profile_media_dir, code_to_confirm_email
 
 
 class WishList(models.Model):
@@ -28,6 +28,7 @@ class Profile(models.Model):
 
     photo = models.ImageField(upload_to=get_user_profile_media_dir, blank=True, null=True)
     email_confirmed = models.BooleanField(default=False)
+    email_confirm_code = models.IntegerField(null=True, default=code_to_confirm_email)
     friendlist = models.ManyToManyField(to=settings.AUTH_USER_MODEL,
                                         related_name="friends")
     location = models.CharField(max_length=200, blank=True, null=True)

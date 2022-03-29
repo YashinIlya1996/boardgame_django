@@ -6,11 +6,12 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.conf import settings
 
-from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm
+from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm, ConfirmEmailForm
 from .models import WishList, Profile
 from bg_project.apps.boardgames.models import BoardGame
-from .services import apply_search_query_games
+from .services import apply_search_query_games, code_to_confirm_email, send_confirm_email
 
 
 def log_in(request):
@@ -29,6 +30,15 @@ def sign_up(request):
     if request.method == 'POST':
         sign_up_form = MyUserCreationForms(data=request.POST)
         if sign_up_form.is_valid():
+            if settings.EMAIL_CONFIRM_REQUIRED:
+                # Если требуется подтверждение Email, отправляем пользователю код подтверждения на почту
+                # и редирект на форму ввода проверочного кода
+                user_data = sign_up_form.cleaned_data
+                user = sign_up_form.save()
+                user.is_active = False
+                user.save()
+                send_confirm_email(user.email, user.profile.email_confirm_code, reverse("confirm_sign_up", args=[user.username]))
+                return redirect(reverse("confirm_sign_up", args=[user.username]))
             user = sign_up_form.save()
             login(request=request, user=user)
             return redirect("index")
@@ -37,11 +47,30 @@ def sign_up(request):
     return render(request, template_name="users/sign_up.html", context={"form": sign_up_form})
 
 
-def confirm_signup(request):
-    pass
+def confirm_signup(request, username):
+    """ Подтверждение регистрации пользователя через код, направленный на email """
+    user = get_object_or_404(User, username=username)
+    if user.is_active:
+        return redirect("profile_detail", user_id=user.id)
+    if request.method == "POST":
+        confirm_email_form = ConfirmEmailForm(request.POST)
+        if confirm_email_form.is_valid():
+            if user.profile.email_confirm_code == confirm_email_form.cleaned_data["code"]:
+                user.is_active = True
+                user.profile.email_confirmed = True
+                user.save()
+                user.profile.save()
+                login(request, user)
+                return redirect("profile_detail", user_id=user.id)
+            else:
+                confirm_email_form.errors["code"] = ['Неверный код подтверждения регистрации']
+    else:
+        confirm_email_form = ConfirmEmailForm()
+    return render(request, "users/confirm_email.html", context={"form": confirm_email_form})
 
 
 class UsersWishlistView(LoginRequiredMixin, ListView):
+    """ Wishlist в виде списка игр, добавленных пользователем в ВЛ """
     login_url = "log_in"
     redirect_field_name = "next"
     template_name = 'users/wishlist.html'
@@ -96,6 +125,7 @@ def add_to_remove_from_wishlist(request, alias):
 
 
 class ProfileDetailView(LoginRequiredMixin, DetailView):
+    """ Информация о профиле пользователя """
     model = Profile
     context_object_name = "profile"
     template_name = "users/profile.html"

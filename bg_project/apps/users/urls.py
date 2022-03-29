@@ -13,5 +13,5 @@ urlpatterns = [
     path("password_change_done/", PasswordChangeDoneView.as_view(template_name='users/password_change_done.html'),
          name='password_change_done'),
     path("signup/", views.sign_up, name="sign_up"),
-    path("signup-confirm/", views.confirm_signup, name="confirm_sign_up"),
+    path("signup-confirm/<username>/", views.confirm_signup, name="confirm_sign_up"),
 ]
