@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.paginator import InvalidPage
 from django.conf import settings
 
 from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm, ConfirmEmailForm
@@ -102,6 +103,24 @@ class UsersWishlistView(LoginRequiredMixin, ListView):
         if search := self.request.session.get("search"):
             context["search_str"] = search
         return context
+
+    def paginate_queryset(self, queryset, page_size):
+        """ Переопределяет родительский метод для того, чтобы при удалении последней
+            игры на странице из ВЛ не возвращалась 404, а переходил на последнюю страницу ВЛ """
+        paginator = self.get_paginator(
+            queryset,
+            page_size,
+            orphans=self.get_paginate_orphans(),
+            allow_empty_first_page=self.get_allow_empty(),
+        )
+        page_kwarg = self.page_kwarg
+        page = self.kwargs.get(page_kwarg) or self.request.GET.get(page_kwarg) or 1
+        try:
+            page_number = int(page)
+        except ValueError:
+            page_number = paginator.num_pages
+        page = paginator.get_page(page_number)
+        return (paginator, page, page.object_list, page.has_other_pages())
 
 
 def add_to_remove_from_wishlist(request, alias):

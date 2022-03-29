@@ -4,13 +4,13 @@ from django.core.mail import EmailMessage
 
 
 def code_to_confirm_email():
-    # Генерирует случайный код для подтверждения почты при регистрации
+    """ Генерирует случайный код для подтверждения почты при регистрации"""
     from random import randint
     return str(randint(100_000, 999_999))
 
 
 def send_confirm_email(user_mail: str, confirm_code: int, path: str):
-    # Отправляет письмо с кодом подтверждения регистрации пользователю
+    """Отправляет письмо с кодом подтверждения регистрации пользователю"""
     mail = EmailMessage(
         to=[user_mail],
         subject="Подтверждение email",
