@@ -30,7 +30,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -79,7 +78,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bg_project.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
@@ -93,7 +91,6 @@ DATABASES = {
         'PASSWORD': secrets['DB_PASSWORD'],
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -113,7 +110,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
@@ -125,7 +121,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
@@ -133,7 +128,6 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -143,11 +137,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = BASE_DIR / 'media/'
 MEDIA_URL = '/media/'
 
-
 # account settings
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
-EMAIL_CONFIRM_REQUIRED = False   # Если True, для регистрации потребуется подтверждение email
+EMAIL_CONFIRM_REQUIRED = True  # Если True, для регистрации потребуется подтверждение email
 
 # email settings
 EMAIL_HOST = 'smtp.mail.ru'
@@ -164,3 +157,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'bg_project.apps.boardgames.services.PageNumberPageSizePagination',
     'PAGE_SIZE': 10,
 }
+
+# REDIS settings
+REDIS_HOST = '0.0.0.0'  # netstat -lp | grep redis
+REDIS_PORT = '6379'
+# celery settings
+# Т.к. в celery.py в app.config_from_object(..., namespaсe='CELERY'), эти настройки подхватятся в конфиг
+CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

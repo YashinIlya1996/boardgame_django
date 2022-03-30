@@ -6,13 +6,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.core.paginator import InvalidPage
 from django.conf import settings
 
 from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm, ConfirmEmailForm
 from .models import WishList, Profile
 from bg_project.apps.boardgames.models import BoardGame
-from .services import apply_search_query_games, code_to_confirm_email, send_confirm_email
+from .services import apply_search_query_games, send_confirm_email
+from .tasks import celery_send_confirm_email
 
 
 def log_in(request):
@@ -38,7 +38,8 @@ def sign_up(request):
                 user = sign_up_form.save()
                 user.is_active = False
                 user.save()
-                send_confirm_email(user.email, user.profile.email_confirm_code, reverse("confirm_sign_up", args=[user.username]))
+                celery_send_confirm_email.delay(user.email, user.profile.email_confirm_code,
+                                                reverse("confirm_sign_up", args=[user.username]))
                 return redirect(reverse("confirm_sign_up", args=[user.username]))
             user = sign_up_form.save()
             login(request=request, user=user)

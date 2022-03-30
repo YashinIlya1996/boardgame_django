@@ -1,6 +1,6 @@
 """ Модуль для определения служебных функций """
-
 from django.core.mail import EmailMessage
+from time import sleep
 
 
 def code_to_confirm_email():
@@ -11,16 +11,16 @@ def code_to_confirm_email():
 
 def send_confirm_email(user_mail: str, confirm_code: int, path: str):
     """Отправляет письмо с кодом подтверждения регистрации пользователю"""
+    sleep(20)  # только для тестирования работы celery!!! TODO: удалить строку
     mail = EmailMessage(
         to=[user_mail],
         subject="Подтверждение email",
         body=f"Для подтверждения email введите на странице {path} этот код: {confirm_code}"
     )
-    for _ in range(10):     # Письмо отправляется 10 раз, если отправка не успешная
+    for _ in range(10):  # Письмо отправляется 10 раз, если отправка не успешная
         send_ok = mail.send(fail_silently=True)
         if send_ok:
             break
-    return send_ok
 
 
 def get_user_profile_media_dir(instance, filename):
@@ -33,4 +33,3 @@ def apply_search_query_games(queryset, request):
     search = request.GET.get("search") or request.session.get("search") or ""
     request.session["search"] = search
     return queryset.filter(title__icontains=search)
-
