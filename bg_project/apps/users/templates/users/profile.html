@@ -8,10 +8,6 @@
 {% block title %}Профиль{% endblock %}
 
 {% block content %}
-    {#    Аватарка#}
-    {#    личные данные#}
-    {#    френдлист#}
-    {#    кнопка редактрования профиля для владельца#}
     <div class="main-container" style="justify-content: space-around">
         <div class="profile-left">
             <img src="
@@ -28,7 +24,7 @@
                 <a href="{% url "password_change" %}"><input type="button" value="Изменить пароль"></a>
             {% endif %}
         </div>
-        <div class="profile-right">
+        <div class="profile-middle">
             {% if not profile.email_confirmed and owner %}
                 <p style="color: darkred">Внимание, ваш email не подтвержден, некоторые действия могут быть недоступны.</p>
                 <a href="#"><input type="button" value="Подтвердить Email" style="max-width: 30%"></a>
@@ -40,6 +36,24 @@
                 <p>{{ friend.username }}</p>
             {% empty %}
                 <p>Ваш список друзей пока пустой</p>
+            {% endfor %}
+            <a href="{% url "profiles_list" %}">Поиск среди пользователей</a>
+        </div>
+        <div class="profile-right">
+            {% for p in profiles_from_friendship_notifications %}
+                <div class="profile-notification">
+                    <img src="{% if p.photo %}{{ p.photo.url }}{% else %}{% static 'img/no-avatar.png' %}{% endif %}"
+                         alt="Ooops" width="50px">
+                    <p> {{ p.user.first_name }} {{ p.user.last_name }} ({{ p.user.username }}) хочет добавить Вас в друзья</p>
+                    <div style="clear: both"></div>
+                    <a href="{% url "friendship_confirm" p.user.id %}">Принять</a>
+                    <a href="{% url "friendship_reject" p.user.id %}">Отклонить</a>
+                    {% if not forloop.last %}
+                    <hr>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p>Новых уведомлений нет</p>
             {% endfor %}
         </div>
     </div>

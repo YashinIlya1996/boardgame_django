@@ -11,7 +11,6 @@ def code_to_confirm_email():
 
 def send_confirm_email(user_mail: str, confirm_code: int, path: str):
     """Отправляет письмо с кодом подтверждения регистрации пользователю"""
-    sleep(20)  # только для тестирования работы celery!!! TODO: удалить строку
     mail = EmailMessage(
         to=[user_mail],
         subject="Подтверждение email",
@@ -33,3 +32,20 @@ def apply_search_query_games(queryset, request):
     search = request.GET.get("search") or request.session.get("search") or ""
     request.session["search"] = search
     return queryset.filter(title__icontains=search)
+
+
+def is_friends(user1, user2):
+    """ Определяет, являются ли user1 и user2 друзьями """
+    return user1.profile in user2.friends_profiles.all() and user2.profile in user1.friends_profiles.all()
+
+
+def make_friends(user1, user2):
+    """ Взаимно добавляет пользователей во френдлисты """
+    user1.friends_profiles.add(user2.profile)
+    user2.friends_profiles.add(user1.profile)
+
+
+def unmake_friends(user1, user2):
+    """ Взаимно удаляет пользователей из френдлистов """
+    user1.friends_profiles.remove(user2.profile)
+    user2.friends_profiles.remove(user1.profile)

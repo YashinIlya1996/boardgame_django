@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Поиск пользователей{% endblock %}
+
+{% block css_addition %}
+    <link rel="stylesheet" href="{% static "users/css/profile_list.css" %}">
+{% endblock %}
+
+{% block content %}
+    <div class="profiles-container">
+    {% for profile in profiles %}
+            <div class="profiles-item">
+                <a href="{% url "profile_detail" profile.user.id %}"><img src="
+                        
+                        {% if profile.photo %}{{ profile.photo.url }}{% else %}{% static 'img/no-avatar.png' %}{% endif %}"
+                        alt="Oooops"></a>
+                <p><strong>Username: </strong>{{ profile.user.username }}</p>
+                <p><strong>Имя: </strong>{{ profile.user.first_name|default:"Не указано" }}</p>
+                <p><strong>Фамилия: </strong>{{ profile.user.last_name|default:"Не указана" }}</p>
+                <p><strong>Пол: </strong>{{ profile.gender|default:"Не указан" }}</p>
+                <p><strong>Город: </strong>{{ profile.location|default:"Не указан" }}</p>
+                <p><strong>Bio: </strong>{{ profile.bio|truncatewords:10|default:"Информация не указана" }}</p>
+                <a href="#"><input type="button" value="Добавить в друзья"></a>
+            </div>
+    {% endfor %}
+    </div>
+{% endblock %}

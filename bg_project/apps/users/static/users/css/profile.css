@@ -1,13 +1,36 @@
 .profile-left {
-    width: 30%;
+    width: 20%;
     border: 2px solid darkslategrey;
     border-radius: 10px;
     padding: 20px;
 }
 
-.profile-right {
-    width: 65%;
+.profile-middle {
+    width: 55%;
     padding: 20px;
     border: 2px solid darkslategrey;
     border-radius: 10px;
+}
+
+.profile-right {
+    width: 20%;
+    padding: 20px;
+    border: 2px solid darkslategrey;
+    border-radius: 10px;
+    max-height: 80vh;
+    overflow: auto;
+}
+
+.profile-notification {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.profile-notification img {
+    margin: 10px;
+    float: left;
+}
+
+.profile-notification a {
+    clear: both;
 }

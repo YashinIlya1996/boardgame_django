@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import User
 
 from bg_project.apps.boardgames.models import BoardGame
 from .services import get_user_profile_media_dir, code_to_confirm_email
@@ -30,7 +31,16 @@ class Profile(models.Model):
     email_confirmed = models.BooleanField(default=False)
     email_confirm_code = models.IntegerField(null=True, default=code_to_confirm_email)
     friendlist = models.ManyToManyField(to=settings.AUTH_USER_MODEL,
-                                        related_name="friends")
+                                        related_name="friends_profiles")
     location = models.CharField(max_length=200, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True, null=True)
+
+
+class FriendshipQuery(models.Model):
+    sender = models.ForeignKey(User, related_name='friendship_queries_from_me', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='friendship_queries_to_me', on_delete=models.CASCADE)
+
+    class Meta:
+        # Запрет на создание повторяющихся запросов
+        constraints = [models.UniqueConstraint(fields=('receiver', 'sender'), name='forbidden_same_friendship_queries')]

@@ -1,24 +1,9 @@
-/*.main-container {*/
-/*    display: flex;*/
-/*    max-width: 1400px;*/
-/*    margin: auto;*/
-/*}*/
-
-
 .list-container {
     width: 80%;
     padding-left: 55px;
     padding-right: 55px;
     padding-bottom: 55px;
 }
-
-/*.sidebar {*/
-/*    align-self: start;*/
-/*    position: sticky;*/
-/*    top: 90px;*/
-/*    width: 20%;*/
-/*    padding: 10px;*/
-/*}*/
 
 .list-item {
     display: inline-block;

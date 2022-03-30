@@ -20,28 +20,28 @@ from django.conf.urls.static import static
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from bg_project.apps.boardgames.views import index, BoardGameViewSet
-from bg_project.apps.users.views import (UsersWishlistView,
-                                         add_to_remove_from_wishlist,
-                                         ProfileDetailView,
-                                         profile_editing)
+from bg_project.apps.boardgames import views as boardgames_views
+from bg_project.apps.users import views as user_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('accounts/', include('bg_project.apps.users.urls')),
     path('games/', include('bg_project.apps.boardgames.urls')),
-    path('wishlist/', UsersWishlistView.as_view(), name="wishlist"),
-    path('add-to-wl/<alias>', add_to_remove_from_wishlist, name="wl_adding"),
-    path('profile/<int:user_id>/', ProfileDetailView.as_view(), name="profile_detail"),
-    path('profile/edit/<int:user_id>/', profile_editing, name="profile_editing"),
-    path('', index, name="index"),
+    path('wishlist/', user_views.UsersWishlistView.as_view(), name="wishlist"),
+    path('add-to-wl/<alias>', user_views.add_to_remove_from_wishlist, name="wl_adding"),
+    path('profile/<int:user_id>/', user_views.ProfileDetailView.as_view(), name="profile_detail"),
+    path('profile/edit/<int:user_id>/', user_views.profile_editing, name="profile_editing"),
+    path('profiles-list/', user_views.ProfilesList.as_view(), name="profiles_list"),
+    path('friedship-confirm/<int:user_id>', user_views.confirm_friendship_query, name="friendship_confirm"),
+    path('friendsip-reject/<int:user_id>', user_views.reject_friendship_query, name="friendship_reject"),
+    path('', boardgames_views.index, name="index"),
 ]
 
 # Добавление urlpatterns для ViewSet BoardGame
 urlpatterns += format_suffix_patterns([
-    path('api/v0/games/<int:pk>/', BoardGameViewSet.as_view({'get': 'retrieve'})),
-    path('api/v0/games/', BoardGameViewSet.as_view({'get': 'list'})),
+    path('api/v0/games/<int:pk>/', boardgames_views.BoardGameViewSet.as_view({'get': 'retrieve'})),
+    path('api/v0/games/', boardgames_views.BoardGameViewSet.as_view({'get': 'list'})),
 ])
 
 # Для доступа к медиа в режиме DEBUG нужно отдельно прописать urls для обработки путей файлов

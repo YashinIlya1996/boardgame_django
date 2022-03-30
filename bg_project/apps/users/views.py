@@ -9,9 +9,9 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.conf import settings
 
 from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm, ConfirmEmailForm
-from .models import WishList, Profile
+from .models import WishList, Profile, FriendshipQuery
 from bg_project.apps.boardgames.models import BoardGame
-from .services import apply_search_query_games, send_confirm_email
+from .services import apply_search_query_games, is_friends, make_friends, unmake_friends
 from .tasks import celery_send_confirm_email
 
 
@@ -141,7 +141,6 @@ def add_to_remove_from_wishlist(request, alias):
         else:
             user.wishlist.games.remove(game)
     return redirect(request.GET.get("next"), "all_games")
-    # TODO реализовать при удалении со страницы Wishlist правильный редирект на Wishlist (поковыряться в фильтре)
 
 
 class ProfileDetailView(LoginRequiredMixin, DetailView):
@@ -161,6 +160,9 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["friendlist"] = self.get_object().friendlist.all()
         context["owner"] = self.kwargs["user_id"] == self.request.user.id
+        profiles = [fq.sender.profile for fq in self.request.user.friendship_queries_to_me.all()]
+        context["profiles_from_friendship_notifications"] = profiles
+        context["users_from_friendship_notifications"] = [p.user for p in profiles]
         return context
 
 
@@ -194,3 +196,52 @@ def profile_editing(request, user_id):
     else:
         form = ProfileEditForm(data=old_data)
     return render(request, "users/profile_editing.html", context={"form": form})
+
+
+class ProfilesList(LoginRequiredMixin, ListView):
+    """ Страница списка пользователей (для добавления во friendlist) """
+    login_url = "log_in"
+    redirect_field_name = "next"
+    template_name = "users/profile_list.html"
+    paginate_by = 20
+    context_object_name = "profiles"
+
+    def get_queryset(self):
+        return Profile.objects.exclude(user=self.request.user)
+
+
+@login_required
+def send_friendship_query(request, user_id):
+    """ Создает запрос на добавление в друзья от залогинившегося пользователя к пользователю с pk=user_id """
+    sender = request.user
+    receiver = get_object_or_404(User, pk=user_id)
+    senders_friendlist = sender.friends_profiles.all()
+    if receiver.profile in senders_friendlist:
+        return redirect("profile_detail", user_id=sender.id)
+    FriendshipQuery.objects.get_or_create(sender=sender, receiver=receiver)
+    return redirect(request.GET.get("next") or "all_games")
+
+
+@login_required
+def confirm_friendship_query(request, user_id):
+    """ Принимает запрос со стороны залогинившегося пользователя на добавление в друзья от пользователя pk=user_id """
+    receiver = request.user
+    sender = get_object_or_404(User, pk=user_id)
+    friendship_query = get_object_or_404(FriendshipQuery, receiver_id=receiver.id, sender_id=sender.id)
+    if not is_friends(receiver, sender):
+        make_friends(receiver, sender)
+    friendship_query.delete()
+    return redirect(request.META.get('HTTP_PREFERER', reverse("profile_detail", args=[receiver.id])))
+
+
+@login_required
+def reject_friendship_query(request, user_id):
+    """ Отклоняет запрос со стороны залогинившегося пользователя на добавление в друзья от пользователя pk=user_id """
+    receiver = request.user
+    sender = get_object_or_404(User, pk=user_id)
+    friendship_query = get_object_or_404(FriendshipQuery, receiver_id=receiver.id, sender_id=sender.id)
+    # Если они уже друзья (например, при взаимных одновременных запросах), удаляем из ФЛ
+    if is_friends(receiver, sender):
+        unmake_friends(receiver, sender)
+    friendship_query.delete()
+    return redirect(request.META.get('HTTP_PREFERER', reverse("profile_detail", args=[receiver.id])))
