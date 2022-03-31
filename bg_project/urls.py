@@ -33,8 +33,10 @@ urlpatterns = [
     path('profile/<int:user_id>/', user_views.ProfileDetailView.as_view(), name="profile_detail"),
     path('profile/edit/<int:user_id>/', user_views.profile_editing, name="profile_editing"),
     path('profiles-list/', user_views.ProfilesList.as_view(), name="profiles_list"),
-    path('friedship-confirm/<int:user_id>', user_views.confirm_friendship_query, name="friendship_confirm"),
-    path('friendsip-reject/<int:user_id>', user_views.reject_friendship_query, name="friendship_reject"),
+    path('friendship-query-send/<int:user_id>/', user_views.send_friendship_query, name="send_friendship_query"),
+    path('delete-from-friendlist/<int:user_id>/', user_views.delete_from_friendlist, name="delete_from_friendlist"),
+    path('friedship-confirm/<int:user_id>/', user_views.confirm_friendship_query, name="friendship_confirm"),
+    path('friendsip-reject/<int:user_id>/', user_views.reject_friendship_query, name="friendship_reject"),
     path('', boardgames_views.index, name="index"),
 ]
 

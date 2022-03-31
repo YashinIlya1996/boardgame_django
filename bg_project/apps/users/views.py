@@ -209,6 +209,11 @@ class ProfilesList(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Profile.objects.exclude(user=self.request.user)
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=None, **kwargs)
+        context["users_friends_profiles"] = self.request.user.friends_profiles.all()
+        return context
+
 
 @login_required
 def send_friendship_query(request, user_id):
@@ -219,7 +224,7 @@ def send_friendship_query(request, user_id):
     if receiver.profile in senders_friendlist:
         return redirect("profile_detail", user_id=sender.id)
     FriendshipQuery.objects.get_or_create(sender=sender, receiver=receiver)
-    return redirect(request.GET.get("next") or "all_games")
+    return redirect(request.META.get("HTTP_REFERER") or "all_games")
 
 
 @login_required
@@ -231,7 +236,7 @@ def confirm_friendship_query(request, user_id):
     if not is_friends(receiver, sender):
         make_friends(receiver, sender)
     friendship_query.delete()
-    return redirect(request.META.get('HTTP_PREFERER', reverse("profile_detail", args=[receiver.id])))
+    return redirect(request.META.get('HTTP_REFERER', reverse("profile_detail", args=[receiver.id])))
 
 
 @login_required
@@ -244,4 +249,12 @@ def reject_friendship_query(request, user_id):
     if is_friends(receiver, sender):
         unmake_friends(receiver, sender)
     friendship_query.delete()
-    return redirect(request.META.get('HTTP_PREFERER', reverse("profile_detail", args=[receiver.id])))
+    return redirect(request.META.get('HTTP_REFERER', reverse("profile_detail", args=[receiver.id])))
+
+
+@login_required
+def delete_from_friendlist(request, user_id):
+    """ Удаляет пользователя с pk=user_id из ФЛ залогинившегося пользователя """
+    deleted_user = get_object_or_404(User, pk=user_id)
+    unmake_friends(request.user, deleted_user)
+    return redirect(request.META.get('HTTP_REFERER', reverse("profile_detail", args=[request.user.id])))

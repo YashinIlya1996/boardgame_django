@@ -33,9 +33,9 @@
             <p><strong>О себе: </strong>{{ profile.bio|default:"Информация не указана" }}</p>
             <p><strong>Список друзей: </strong></p>
             {% for friend in friendlist %}
-                <p>{{ friend.username }}</p>
+                <p>{{ friend.username }} | <a href="{% url "delete_from_friendlist" friend.id %}"> Удалить из друзей</a></p>
             {% empty %}
-                <p>Ваш список друзей пока пустой</p>
+                <p>Список друзей еще пустой</p>
             {% endfor %}
             <a href="{% url "profiles_list" %}">Поиск среди пользователей</a>
         </div>
