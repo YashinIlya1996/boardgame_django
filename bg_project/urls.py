@@ -29,6 +29,7 @@ urlpatterns = [
     path('accounts/', include('bg_project.apps.users.urls')),
     path('games/', include('bg_project.apps.boardgames.urls')),
     path('wishlist/', user_views.UsersWishlistView.as_view(), name="wishlist"),
+    path('meets/', user_views.MeetsListView.as_view(), name="meets"),
     path('add-to-wl/<alias>', user_views.add_to_remove_from_wishlist, name="wl_adding"),
     path('profile/<int:user_id>/', user_views.ProfileDetailView.as_view(), name="profile_detail"),
     path('profile/edit/<int:user_id>/', user_views.profile_editing, name="profile_editing"),

@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.conf import settings
 
 from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm, ConfirmEmailForm
-from .models import WishList, Profile, FriendshipQuery
+from .models import WishList, Profile, FriendshipQuery, Meeting
 from bg_project.apps.boardgames.models import BoardGame
 from .services import apply_search_query_games, is_friends, make_friends, unmake_friends
 from .tasks import celery_send_confirm_email
@@ -122,6 +122,16 @@ class UsersWishlistView(LoginRequiredMixin, ListView):
             page_number = paginator.num_pages
         page = paginator.get_page(page_number)
         return (paginator, page, page.object_list, page.has_other_pages())
+
+
+class MeetsListView(ListView):
+    """ Отображение списка созданных встреч. """
+    template_name = 'users/meets.html'
+    paginate_by = 10
+    context_object_name = 'meets'
+
+    def get_queryset(self):
+        return [x for x in Meeting.objects.all() if not x.finished]
 
 
 def add_to_remove_from_wishlist(request, alias):

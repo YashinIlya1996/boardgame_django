@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import json
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -94,7 +95,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.environ.get('TZ') or 'Europe/Moscow'
 
 USE_I18N = True
 

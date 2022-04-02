@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Встречи{% endblock %}
+
+{% block css_addition %}{% endblock %}
+
+{% block content %}
+    {% for meet in meets %}
+        <div>
+            <p><b>Создатель встречи:</b> {{ meet.creator.get_full_name|default:meet.creator.username }}</p>
+            <p><b>Дата: </b>{{ meet.date|date:"j E Y (l)" }}</p>
+            <p><b>Время: </b>{{ meet.time|time:"H:i" }}</p>
+            <p><b>Место проведения: </b>{{ meet.location }}</p>
+            <p><b>Описание: </b>{{ meet.description }}</p>
+            <p><b>Количество участников: </b>{{ meet.players.count }}</p>
+        </div>
+        <hr>
+    {% empty %}
+        Нет ни одной предстоящей встречи
+    {% endfor %}
+{% endblock %}

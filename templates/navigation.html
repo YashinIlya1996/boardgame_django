@@ -1,7 +1,7 @@
 <div class="nav-container">
     <a href="{% url "index" %}"><div class="nav-item {% if request.path == "/" %}active{% endif %}">Главная</div></a>
     <a href="{% url "all_games" %}"><div class="nav-item {% if request.path == "/games/" %}active{% endif %}">Игры</div></a>
-    <a href="#"><div class="nav-item">Встречи</div></a>
+    <a href="{% url "meets" %}"><div class="nav-item">Встречи</div></a>
     {% if user.is_authenticated %}
         <a href="{% url "wishlist" %}"><div class="nav-item {% if request.path == "/wishlist/" %}active{% endif %}">Wishlist</div></a>
         <a href="#"><div class="nav-item">Мои партии</div></a>
