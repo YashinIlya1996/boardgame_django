@@ -6,16 +6,14 @@ from django.db.models import F, Q
 from django.core.exceptions import ObjectDoesNotExist
 
 # DRF импорт
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import viewsets
-from rest_framework.permissions import IsAdminUser
 
 # Собственный импорт
 from .models import BoardGame
 from .serializers import BoardGamesListSerializer
 from .services import get_queryset_bg_by_default_ordering
 from bg_project.apps.users.services import apply_search_query_games
+from .tasks import celery_parse_new_games
 
 
 def test(request):
@@ -100,6 +98,7 @@ class AllGames(ListView):
         search = self.request.session.get("search")
         if search:
             context["search_str"] = search
+        context["count"] = BoardGame.objects.count()
         return context
 
 
@@ -116,3 +115,8 @@ class DetailGame(DetailView):
 class BoardGameViewSet(viewsets.ModelViewSet):
     serializer_class = BoardGamesListSerializer
     queryset = get_queryset_bg_by_default_ordering()
+
+
+def test_celery_downloader(request):
+    celery_parse_new_games.delay()
+    return HttpResponse("Парсинг запущен")

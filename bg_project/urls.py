@@ -26,6 +26,7 @@ from bg_project.apps.users import views as user_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
+    path('test-celery-parse/', boardgames_views.test_celery_downloader),
     path('accounts/', include('bg_project.apps.users.urls')),
     path('games/', include('bg_project.apps.boardgames.urls')),
     path('wishlist/', user_views.UsersWishlistView.as_view(), name="wishlist"),
