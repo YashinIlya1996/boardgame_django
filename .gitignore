@@ -147,3 +147,5 @@ migrations/
 /TODO.txt
 /test.ipynb
 /dump.rdb
+bg.json
+boardgame.json

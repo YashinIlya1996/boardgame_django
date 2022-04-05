@@ -8,10 +8,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.conf import settings
 
-from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm, ConfirmEmailForm
+from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm, ConfirmEmailForm, CreateMeetForm
 from .models import WishList, Profile, FriendshipQuery, Meeting
 from bg_project.apps.boardgames.models import BoardGame
-from .services import apply_search_query_games, is_friends, make_friends, unmake_friends
+from .services import apply_search_query_games, is_friends, make_friends, unmake_friends, is_meet_creator
 from .tasks import celery_send_confirm_email
 
 
@@ -268,3 +268,72 @@ def delete_from_friendlist(request, user_id):
     deleted_user = get_object_or_404(User, pk=user_id)
     unmake_friends(request.user, deleted_user)
     return redirect(request.META.get('HTTP_REFERER', reverse("profile_detail", args=[request.user.id])))
+
+
+@login_required
+def create_meet(request):
+    """ Обраотка страницы создания встречи """
+    if request.method == 'POST':
+        form = CreateMeetForm(data=request.POST)
+        creator = request.user
+        if form.is_valid():
+            new_meet = form.save(commit=False)
+            new_meet.creator = creator
+            new_meet.save()
+            return redirect("meets")
+    else:
+        form = CreateMeetForm()
+    return render(request, 'users/meet_creation.html', context={'form': form})
+
+
+@login_required
+def send_meet_request(request, meet_id):
+    """ Отправляет запрос на участие во встрече"""
+    meet = get_object_or_404(Meeting, pk=meet_id)
+    sender = request.user
+    if sender not in meet.players.all() and sender != meet.creator:
+        meet.in_request.add(sender)
+    return redirect(request.META.get('HTTP_REFERER', reverse("meets")))
+
+
+@login_required
+def reject_meet_request(request, meet_id, user_id):
+    """ Отклоняет запрос на участие пользователя user_id во встрече meet_id """
+    if not is_meet_creator(request, meet_id):
+        raise PermissionDenied("У вас недостаточно прав, чтобы управлять встречей")
+    meet = get_object_or_404(Meeting, pk=meet_id)
+    not_player = get_object_or_404(User, pk=user_id)
+    meet.in_request.remove(not_player)
+    return redirect(request.META.get('HTTP_REFERER', reverse("meets")))
+
+
+@login_required
+def confirm_meet_request(request, meet_id, user_id):
+    """ Принимает запрос на участие во встрече """
+    if not is_meet_creator(request, meet_id):
+        raise PermissionDenied("У вас недостаточно прав, чтобы управлять встречей")
+    meet = get_object_or_404(Meeting, pk=meet_id)
+    player = get_object_or_404(User, pk=user_id)
+    meet.in_request.remove(player)
+    meet.players.add(player)
+    return redirect(request.META.get('HTTP_REFERER', reverse("meets")))
+
+
+@login_required
+def delete_from_players(request, meet_id, user_id):
+    """ Удаляет пользователя user_id из встречи meet_id """
+    if not is_meet_creator(request, meet_id):
+        raise PermissionDenied("У вас недостаточно прав, чтобы управлять встречей")
+    meet = get_object_or_404(Meeting, pk=meet_id)
+    player = get_object_or_404(User, pk=user_id)
+    meet.players.remove(player)
+    return redirect(request.META.get('HTTP_REFERER', reverse("meets")))
+
+
+@login_required
+def manage_meeting(request, meet_id):
+    """ Управление встречей, созданной пользователем"""
+    if not is_meet_creator(request, meet_id):
+        raise PermissionDenied("У вас недостаточно прав, чтобы управлять встречей")
+    meet = get_object_or_404(Meeting, pk=meet_id)
+    return render(request, "users/meet_detail.html", context={'meet': meet})

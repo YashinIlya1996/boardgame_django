@@ -15,6 +15,8 @@ body {
 input[type=text],
 input[type=email],
 input[type=password],
+input[type=date],
+input[type=time],
 select, textarea {
     width: 100%;
     border-radius: 5px;
@@ -31,7 +33,9 @@ input[type=reset] {
     background-color: seagreen;
     border-radius: 5px;
     color: #bbffdd;
-    width: 100%;
+    /*width: 100%;*/
+    clear: both;
+    display: inline-block;
     font-size: 1.3em;
     padding: 8px;
     margin-top: 15px;

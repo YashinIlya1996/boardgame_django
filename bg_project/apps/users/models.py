@@ -62,6 +62,7 @@ class Meeting(models.Model):
         Дата и время встречи задается создателем, может быть отредактирована в дальнейшем. """
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_meets')
     players = models.ManyToManyField(User, related_name='meets')
+    in_request = models.ManyToManyField(User, related_name='meets_in_request')
     # max_players = models.SmallIntegerField()
     description = models.TextField()
     date = models.DateField()

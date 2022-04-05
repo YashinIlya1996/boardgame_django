@@ -1,6 +1,9 @@
 """ Модуль для определения служебных функций """
 from django.core.mail import EmailMessage
-from time import sleep
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
+
+from . import models as user_models
 
 
 def code_to_confirm_email():
@@ -49,3 +52,8 @@ def unmake_friends(user1, user2):
     """ Взаимно удаляет пользователей из френдлистов """
     user1.friends_profiles.remove(user2.profile)
     user2.friends_profiles.remove(user1.profile)
+
+
+def is_meet_creator(request, meet_id):
+    meet = get_object_or_404(user_models.Meeting, pk=meet_id)
+    return request.user == meet.creator

@@ -1,0 +1,14 @@
+{%  extends 'base.html' %}
+
+{% block title %}Создание встречи{% endblock %}
+
+{% block content %}
+    <div style="max-width: 600px; margin: auto">
+    <h1>Создать новую встречу</h1>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Создать">
+        </form>
+    </div>
+{% endblock %}
