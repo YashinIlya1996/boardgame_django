@@ -25,7 +25,7 @@ def clear_search_data(request):
 
 
 def index(request):
-    return render(request, 'boardgames/index.html')
+    return render(request, 'boardgames/index.html', context={"active": "index"})
 
 
 class AllGames(ListView):
@@ -56,6 +56,7 @@ class AllGames(ListView):
         if search:
             context["search_str"] = search
         context["count"] = BoardGame.objects.count()
+        context["active"] = "games"
         return context
 
 
@@ -67,6 +68,11 @@ class DetailGame(DetailView):
 
     def get_queryset(self):
         return BoardGame.objects.filter(tesera_alias=self.kwargs.get("alias"))
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailGame, self).get_context_data(**kwargs)
+        context["active"] = "games"
+        return context
 
 
 class BoardGameViewSet(viewsets.ModelViewSet):

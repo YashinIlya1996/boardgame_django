@@ -24,7 +24,7 @@ def log_in(request):
             return redirect(request.GET.get("next") or "index")
     else:
         login_form = UserLoginForm()
-    return render(request, template_name="users/login.html", context={"form": login_form})
+    return render(request, template_name="users/login.html", context={"form": login_form, "active": "login"})
 
 
 def sign_up(request):
@@ -46,7 +46,7 @@ def sign_up(request):
             return redirect("index")
     else:
         sign_up_form = MyUserCreationForms()
-    return render(request, template_name="users/sign_up.html", context={"form": sign_up_form})
+    return render(request, template_name="users/sign_up.html", context={"form": sign_up_form, "active": "signup"})
 
 
 def confirm_signup(request, username):
@@ -68,7 +68,7 @@ def confirm_signup(request, username):
                 confirm_email_form.errors["code"] = ['Неверный код подтверждения регистрации']
     else:
         confirm_email_form = ConfirmEmailForm()
-    return render(request, "users/confirm_email.html", context={"form": confirm_email_form})
+    return render(request, "users/confirm_email.html", context={"form": confirm_email_form, "active": "signup"})
 
 
 class UsersWishlistView(LoginRequiredMixin, ListView):
@@ -103,6 +103,7 @@ class UsersWishlistView(LoginRequiredMixin, ListView):
             context["users_wl"] = users_wl
         if search := self.request.session.get("search"):
             context["search_str"] = search
+        context["active"] = "wishlist"
         return context
 
     def paginate_queryset(self, queryset, page_size):
@@ -132,6 +133,11 @@ class MeetsListView(ListView):
 
     def get_queryset(self):
         return [x for x in Meeting.objects.all() if not x.finished]
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(MeetsListView, self).get_context_data(object_list=object_list, **kwargs)
+        context["active"] = "meets"
+        return context
 
 
 def add_to_remove_from_wishlist(request, alias):
@@ -173,6 +179,7 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         profiles = [fq.sender.profile for fq in self.request.user.friendship_queries_to_me.all()]
         context["profiles_from_friendship_notifications"] = profiles
         context["users_from_friendship_notifications"] = [p.user for p in profiles]
+        context["active"] = "profile"
         return context
 
 
@@ -205,7 +212,7 @@ def profile_editing(request, user_id):
             return redirect("profile_detail", user_id)
     else:
         form = ProfileEditForm(data=old_data)
-    return render(request, "users/profile_editing.html", context={"form": form})
+    return render(request, "users/profile_editing.html", context={"form": form, 'active': 'profile'})
 
 
 class ProfilesList(LoginRequiredMixin, ListView):
@@ -222,6 +229,7 @@ class ProfilesList(LoginRequiredMixin, ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=None, **kwargs)
         context["users_friends_profiles"] = self.request.user.friends_profiles.all()
+        context["active"] = "profile"
         return context
 
 
