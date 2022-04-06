@@ -23,6 +23,10 @@
                 {% elif user.is_authenticated %}
                     {% if user not in meet.players.all and user not in meet.in_request.all %}
                         <a href="{% url "send_meet_request" meet.pk %}">Подать заявку на участие</a>
+                    {% elif user in meet.in_request.all %}
+                        <a href="{% url "leave_meet" meet.pk %}">Отменить заявку</a>
+                    {% else %}
+                        <a href="{% url "leave_meet" meet.pk %}">Покинуть встречу</a>
                     {% endif %}
                 {% endif %}
             </p>

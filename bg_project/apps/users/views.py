@@ -297,6 +297,16 @@ def send_meet_request(request, meet_id):
 
 
 @login_required
+def leave_meet_and_cancel_meet_request(request, meet_id):
+    """ Отменяет заявку пользователя на участие во встрече """
+    meet = get_object_or_404(Meeting, pk=meet_id)
+    user = request.user
+    meet.in_request.remove(user)
+    meet.players.remove(user)
+    return redirect(request.META.get('HTTP_REFERER', reverse("meets")))
+
+
+@login_required
 def reject_meet_request(request, meet_id, user_id):
     """ Отклоняет запрос на участие пользователя user_id во встрече meet_id """
     if not is_meet_creator(request, meet_id):

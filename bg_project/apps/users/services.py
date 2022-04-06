@@ -3,7 +3,7 @@ from django.core.mail import EmailMessage
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-from . import models as user_models
+from . import models as user_models  # такой импорт для исключения циклического импорта
 
 
 def code_to_confirm_email():
@@ -55,5 +55,25 @@ def unmake_friends(user1, user2):
 
 
 def is_meet_creator(request, meet_id):
+    """ True, если залогинившийся пользователь - создатель встречи meet_id"""
     meet = get_object_or_404(user_models.Meeting, pk=meet_id)
     return request.user == meet.creator
+
+
+def send_meet_soon_notifications(meet_id: int):
+    """ Отправляет письма участникам встречи """
+    meet = user_models.Meeting.objects.prefetch_related('players').get(pk=meet_id)
+    emails = tuple({player.email for player in meet.players.all() if player.email})
+    mail = EmailMessage(
+        to=emails,
+        subject="Скоро состоится встреча",
+        body=f"""Уважаемый пользователь! Это письмо направлено вам, потому что вы принимаете участие во встрече,
+                которая состоится {meet.date.strftime('%d.%m.%Y')} в {meet.time.strftime('%H:%M')} 
+                по адресу {meet.location}. Приятной игры! 
+                P.S. Для уточнения деталей Вы можете связаться с организатором встречи по email: {meet.creator.email}"""
+
+    )
+    for _ in range(10):  # Письмо отправляется 10 раз, если отправка не успешная
+        send_ok = mail.send(fail_silently=True)
+        if send_ok:
+            break

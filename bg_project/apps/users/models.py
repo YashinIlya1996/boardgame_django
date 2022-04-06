@@ -68,6 +68,7 @@ class Meeting(models.Model):
     date = models.DateField()
     time = models.TimeField()
     location = models.CharField(max_length=250)
+    notification_task_uuid = models.UUIDField(null=True)
 
     @property
     def finished(self):

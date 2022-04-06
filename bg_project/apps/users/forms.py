@@ -58,7 +58,7 @@ class CreateMeetForm(forms.ModelForm):
         Поле creator берется из request.user во view, players вступают во встречу после ее создания"""
     class Meta:
         model = Meeting
-        exclude = ('creator', 'players', 'in_request')
+        exclude = ('creator', 'players', 'in_request', 'notification_task_uuid')
         labels = {
             'description': 'Описание встречи',
             'date': 'Дата проведения',
