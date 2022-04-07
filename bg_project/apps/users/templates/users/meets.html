@@ -1,38 +1,54 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Встречи{% endblock %}
 
-{% block css_addition %}{% endblock %}
+{% block css_addition %}
+    <link rel="stylesheet" href="{% static 'users/css/meets.css' %}">
+    <link rel="stylesheet" href="{% static 'css/paginate.css' %}">
+{% endblock %}
 
 {% block content %}
-    {% if user.is_authenticated %}
-        <a href="{% url "create_meet" %}"><h3>Создать новую встречу</h3></a>
-        <hr>
-    {% endif %}
-    {% for meet in meets %}
-        <div>
-            <p><b>Создатель встречи:</b> {{ meet.creator.get_full_name|default:meet.creator.username }}</p>
-            <p><b>Дата: </b>{{ meet.date|date:"j E Y (l)" }}</p>
-            <p><b>Время: </b>{{ meet.time|time:"H:i" }}</p>
-            <p><b>Место проведения: </b>{{ meet.location }}</p>
-            <p><b>Описание: </b>{{ meet.description }}</p>
-            <p><b>Количество участников: </b>{{ meet.players.count }}</p>
-            <p>
-                {% if user == meet.creator %}
-                    <a href="{% url "manage_meeting" meet.pk %}">Управлять встречей</a>
-                {% elif user.is_authenticated %}
-                    {% if user not in meet.players.all and user not in meet.in_request.all %}
-                        <a href="{% url "send_meet_request" meet.pk %}">Подать заявку на участие</a>
-                    {% elif user in meet.in_request.all %}
-                        <a href="{% url "leave_meet" meet.pk %}">Отменить заявку</a>
-                    {% else %}
-                        <a href="{% url "leave_meet" meet.pk %}">Покинуть встречу</a>
-                    {% endif %}
-                {% endif %}
-            </p>
+
+    {% include 'pagination.html' with page=page_obj %}
+
+    <div class="meet-container">
+        {% if user.is_authenticated %}
+            <div class="meet-sidebar">
+                <a href="{% url "meets" "future" %}"><h3>{% if request.resolver_match.kwargs.category == "future" %}--> {% endif %}Ближайшие</h3></a>
+                <a href="{% url "meets" "im-creator" %}"><h3>{% if request.resolver_match.kwargs.category == "im-creator" %}--> {% endif %}Созданные мной</h3></a>
+                <a href="{% url "meets" "with-my-participation" %}"><h3>{% if request.resolver_match.kwargs.category == "with-my-participation" %}--> {% endif %}С моим участием</h3></a>
+                <a href="{% url "meets" "past" %}"><h3>{% if request.resolver_match.kwargs.category == "past" %}--> {% endif %}Прошедшие</h3></a>
+                <a href="{% url "create_meet" %}"><input type="button" value="Создать встречу" style="width: 100%"></a>
+            </div>
+        {% endif %}
+
+        <div class="meet-list-container">
+            {% for meet in meets %}
+                <div class="meet-list-item">
+                    <p><b>Создатель встречи:</b> {{ meet.creator.get_full_name|default:meet.creator.username }}</p>
+                    <p><b>Дата: </b>{{ meet.date|date:"j E Y (l)" }}</p>
+                    <p><b>Время: </b>{{ meet.time|time:"H:i" }}</p>
+                    <p><b>Место проведения: </b>{{ meet.location }}</p>
+                    <p><b>Описание: </b>{{ meet.description }}</p>
+                    <p><b>Количество участников: </b>{{ meet.players.count }}</p>
+                    <p>
+                        {% if user == meet.creator %}
+                            <a href="{% url "manage_meeting" meet.pk %}">Управлять встречей</a>
+                        {% elif user.is_authenticated %}
+                            {% if user not in meet.players.all and user not in meet.in_request.all %}
+                                <a href="{% url "send_meet_request" meet.pk %}">Подать заявку на участие</a>
+                            {% elif user in meet.in_request.all %}
+                                <a href="{% url "leave_meet" meet.pk %}">Отменить заявку</a>
+                            {% else %}
+                                <a href="{% url "leave_meet" meet.pk %}">Покинуть встречу</a>
+                            {% endif %}
+                        {% endif %}
+                    </p>
+                </div>
+            {% empty %}
+                Нет ни одной предстоящей встречи
+            {% endfor %}
         </div>
-        <hr>
-    {% empty %}
-        Нет ни одной предстоящей встречи
-    {% endfor %}
+    </div>
+    {% include 'pagination.html' with page=page_obj %}
 {% endblock %}

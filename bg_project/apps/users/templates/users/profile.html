@@ -27,13 +27,16 @@
         <div class="profile-middle">
             {% if not profile.email_confirmed and owner %}
                 <p style="color: darkred">Внимание, ваш email не подтвержден, некоторые действия могут быть недоступны.</p>
-                <a href="#"><input type="button" value="Подтвердить Email" style="max-width: 30%"></a>
+                <a href="#"><input type="button" value="Подтвердить Email"></a>
                 <hr>
             {% endif %}
             <p><strong>О себе: </strong>{{ profile.bio|default:"Информация не указана" }}</p>
             <p><strong>Список друзей: </strong></p>
             {% for friend in friendlist %}
-                <p>{{ friend.username }} | <a href="{% url "delete_from_friendlist" friend.id %}"> Удалить из друзей</a></p>
+                <p>{{ friend.username }}
+                    {% if owner %} | <a href="{% url "delete_from_friendlist" friend.id %}"> Удалить из друзей</a>
+                    {% endif %}
+                </p>
             {% empty %}
                 <p>Список друзей еще пустой</p>
             {% endfor %}

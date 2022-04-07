@@ -132,7 +132,17 @@ class MeetsListView(ListView):
     context_object_name = 'meets'
 
     def get_queryset(self):
-        return [x for x in Meeting.objects.all() if not x.finished]
+        # return [x for x in Meeting.objects.all() if not x.finished]
+        category = self.kwargs["category"]
+        if not self.request.user.is_authenticated or category == "future":
+            return [x for x in Meeting.objects.all() if not x.finished]
+        elif category == "im-creator":
+            return self.request.user.created_meets.all()
+        elif category == "with-my-participation":
+            return self.request.user.meets.all()
+        elif category == "past":
+            return [x for x in Meeting.objects.all() if x.finished]
+
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(MeetsListView, self).get_context_data(object_list=object_list, **kwargs)
@@ -220,7 +230,7 @@ class ProfilesList(LoginRequiredMixin, ListView):
     login_url = "log_in"
     redirect_field_name = "next"
     template_name = "users/profile_list.html"
-    paginate_by = 20
+    paginate_by = 12
     context_object_name = "profiles"
 
     def get_queryset(self):
@@ -288,7 +298,7 @@ def create_meet(request):
             new_meet = form.save(commit=False)
             new_meet.creator = creator
             new_meet.save()
-            return redirect("meets")
+            return redirect("meets", "future")
     else:
         form = CreateMeetForm()
     return render(request, 'users/meet_creation.html', context={'form': form})
@@ -301,7 +311,7 @@ def send_meet_request(request, meet_id):
     sender = request.user
     if sender not in meet.players.all() and sender != meet.creator:
         meet.in_request.add(sender)
-    return redirect(request.META.get('HTTP_REFERER', reverse("meets")))
+    return redirect(request.META.get('HTTP_REFERER', reverse("meets", args=["future"])))
 
 
 @login_required
@@ -311,7 +321,7 @@ def leave_meet_and_cancel_meet_request(request, meet_id):
     user = request.user
     meet.in_request.remove(user)
     meet.players.remove(user)
-    return redirect(request.META.get('HTTP_REFERER', reverse("meets")))
+    return redirect(request.META.get('HTTP_REFERER', reverse("meets", args=["future"])))
 
 
 @login_required
@@ -322,7 +332,7 @@ def reject_meet_request(request, meet_id, user_id):
     meet = get_object_or_404(Meeting, pk=meet_id)
     not_player = get_object_or_404(User, pk=user_id)
     meet.in_request.remove(not_player)
-    return redirect(request.META.get('HTTP_REFERER', reverse("meets")))
+    return redirect(request.META.get('HTTP_REFERER', reverse("meets", args=["future"])))
 
 
 @login_required
@@ -334,7 +344,7 @@ def confirm_meet_request(request, meet_id, user_id):
     player = get_object_or_404(User, pk=user_id)
     meet.in_request.remove(player)
     meet.players.add(player)
-    return redirect(request.META.get('HTTP_REFERER', reverse("meets")))
+    return redirect(request.META.get('HTTP_REFERER', reverse("meets", args=["future"])))
 
 
 @login_required
@@ -345,7 +355,7 @@ def delete_from_players(request, meet_id, user_id):
     meet = get_object_or_404(Meeting, pk=meet_id)
     player = get_object_or_404(User, pk=user_id)
     meet.players.remove(player)
-    return redirect(request.META.get('HTTP_REFERER', reverse("meets")))
+    return redirect(request.META.get('HTTP_REFERER', reverse("meets", args=["future"])))
 
 
 @login_required

@@ -1,0 +1,36 @@
+.meet-container {
+    display: flex;
+    max-width: 1400px;
+    margin: auto;
+}
+
+.meet-sidebar {
+    align-self: start;
+    position: sticky;
+    top: 90px;
+    width: 20%;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow:  0 0 30px darkslategrey;
+}
+
+.meet-sidebar-item {
+
+}
+
+.meet-list-container {
+    width: 80%;
+    padding-left: 55px;
+    padding-right: 55px;
+    padding-bottom: 55px;
+    margin: auto;
+}
+
+.meet-list-item {
+    display: inline-block;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    box-shadow:  0 0 30px darkslategrey;
+}

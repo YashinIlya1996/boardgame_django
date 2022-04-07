@@ -1,20 +1,5 @@
-"""bg_project URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, register_converter
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -22,6 +7,9 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from bg_project.apps.boardgames import views as boardgames_views
 from bg_project.apps.users import views as user_views
+from bg_project.converters import MeetCategory
+
+register_converter(MeetCategory, "meet_category")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,7 +24,7 @@ urlpatterns = [
     path('meets/reject-request/<int:meet_id>/<int:user_id>/', user_views.reject_meet_request, name="reject_meet_request"),
     path('meets/confirm-request/<int:meet_id>/<int:user_id>/', user_views.confirm_meet_request, name="confirm_meet_request"),
     path('meets/delete-player/<int:meet_id>/<int:user_id>/', user_views.delete_from_players, name="delete_player"),
-    path('meets/', user_views.MeetsListView.as_view(), name="meets"),
+    path('meets/<meet_category:category>/', user_views.MeetsListView.as_view(), name="meets"),
     path('add-to-wl/<alias>/', user_views.add_to_remove_from_wishlist, name="wl_adding"),
     path('profile/<int:user_id>/', user_views.ProfileDetailView.as_view(), name="profile_detail"),
     path('profile/edit/<int:user_id>/', user_views.profile_editing, name="profile_editing"),

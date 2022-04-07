@@ -8,9 +8,9 @@
         <form action="{% url "wl_adding" game.tesera_alias %}">
             <input type="hidden" name="next" value="{{ game|url_with_anchor:full_path }}">
             {% if game in users_wl %}
-                <input type="submit" value="Удалить из Wishlist">
+                <input type="submit" value="Удалить из Wishlist" style="float: right">
             {% else %}
-                <input type="submit" value="Добавить в Wishlist">
+                <input type="submit" value="Добавить в Wishlist" style="float: right">
             {% endif %}
         </form>
     {% endif %}

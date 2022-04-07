@@ -10,9 +10,15 @@
 
 .profiles-item {
     width: 20%;
+    overflow: auto;
     padding: 20px;
     border-radius: 20px;
     box-shadow: 0 0 10px grey;
+}
+
+.profiles-item input[type=button] {
+    width: 100%;
+    position: relative;
 }
 
 .profiles-item img {

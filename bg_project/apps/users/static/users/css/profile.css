@@ -5,6 +5,10 @@
     padding: 20px;
 }
 
+.profile-left input[type=button] {
+    width: 100%;
+}
+
 .profile-middle {
     width: 55%;
     padding: 20px;

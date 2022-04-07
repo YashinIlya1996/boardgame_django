@@ -56,6 +56,7 @@ class ProfileEditForm(forms.Form):
 class CreateMeetForm(forms.ModelForm):
     """ Форма для создания встречи.
         Поле creator берется из request.user во view, players вступают во встречу после ее создания"""
+
     class Meta:
         model = Meeting
         exclude = ('creator', 'players', 'in_request', 'notification_task_uuid')
@@ -76,7 +77,8 @@ class CreateMeetForm(forms.ModelForm):
         return self.cleaned_data['date']
 
     def clean_time(self):
-        if self.cleaned_data['time'] < dt.datetime.now().time() and \
-                self.cleaned_data['date'] == dt.date.today():
+        date = self.cleaned_data.get("date")
+        if not date or self.cleaned_data['time'] < dt.datetime.now().time() and \
+                date == dt.date.today():
             raise ValidationError('Время и дата не должны быть меньше текущего значения')
         return self.cleaned_data['time']

@@ -75,4 +75,7 @@ class Meeting(models.Model):
         """ True, если время игры истекло """
         return self.date < datetime.date.today() or self.time < datetime.datetime.now().time() and self.date == datetime.date.today()
 
+    class Meta:
+        ordering = ('date', 'time')
+
 

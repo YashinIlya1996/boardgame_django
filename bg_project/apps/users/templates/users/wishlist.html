@@ -8,14 +8,14 @@
 
 {% block css_addition %}
     <link rel="stylesheet" href="{% static 'boardgames/css/list_view.css' %}">
-    <link rel="stylesheet" href="{% static 'boardgames/css/paginate.css' %}">
+    <link rel="stylesheet" href="{% static 'css/paginate.css' %}">
 {% endblock %}
 
 {% block content %}
     {% if search_str %}
         <h3 style="text-align: center">Вот что нашлось по запросу "{{ search_str }}": </h3>
     {% endif %}
-{% include 'boardgames/pagination.html' with page=page_obj%}
+{% include 'pagination.html' with page=page_obj%}
 <!-- Вывод всех игр -->
     <div class="main-container">
         <div class="list-container">
@@ -29,5 +29,5 @@
     </div>
 
 <!-- Пагинация -->
-{% include 'boardgames/pagination.html' with page=page_obj%}
+{% include 'pagination.html' with page=page_obj%}
 {% endblock %}

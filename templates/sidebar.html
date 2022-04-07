@@ -5,5 +5,5 @@
         <a href="{% url "clear_search" %}?next={{ request.path }}"><input type="button" value="Сбросить"
                                                                           style="width: 45%; display: inline-block; float: right"></a>
     </form>
-    <h3>Добро пожаловать, {{ user.get_full_name|default:user.username }}</h3>
+    <h3>Добро пожаловать, {{ user.get_full_name|default:user.username|default:"незнакомец" }}</h3>
 </div>
