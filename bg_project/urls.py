@@ -33,6 +33,7 @@ urlpatterns = [
     path('delete-from-friendlist/<int:user_id>/', user_views.delete_from_friendlist, name="delete_from_friendlist"),
     path('friedship-confirm/<int:user_id>/', user_views.confirm_friendship_query, name="friendship_confirm"),
     path('friendsip-reject/<int:user_id>/', user_views.reject_friendship_query, name="friendship_reject"),
+    path('friendsip-cancel-query/<int:user_id>/', user_views.cancel_friendship_query, name="cancel_friendship_query"),
     path('', boardgames_views.index, name="index"),
 ]
 

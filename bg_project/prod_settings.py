@@ -12,7 +12,7 @@ STATIC_ROOT = BASE_DIR / 'static'
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "37.228.117.43", "boardgames-project.ru"]
 
 DATABASES = {
     'default': {
@@ -24,3 +24,5 @@ DATABASES = {
         'PASSWORD': secrets['DB_PASSWORD'],
     }
 }
+
+CSRF_TRUSTED_ORIGINS = ["http://*boardgames-project.ru"]

@@ -3,6 +3,7 @@
 
 {% block css_addition %}
     <link rel="stylesheet" href="{% static "users/css/profile.css" %}">
+    <link rel="stylesheet" href="{% static "users/css/friendlist.css" %}">
 {% endblock %}
 
 {% block title %}Профиль{% endblock %}
@@ -13,51 +14,29 @@
             <img src="
                     {% if profile.photo %}{{ profile.photo.url }}{% else %}{% static 'img/no-avatar.png' %}{% endif %}"
                  alt="Ooops" style="max-width: 100%">
-            <p><strong>Имя:     </strong>{{ profile.user.first_name|default:"Не указано" }}</p>
+            <p><strong>Имя: </strong>{{ profile.user.first_name|default:"Не указано" }}</p>
             <p><strong>Фамилия: </strong>{{ profile.user.last_name|default:"Не указана" }}</p>
             <p><strong>Username: </strong>{{ profile.user.username }}</p>
             <p><strong>Email: </strong>{{ profile.user.email|default:"Не указан" }}</p>
-            <p><strong>Пол:     </strong>{{ profile.gender|default:"Не указан" }}</p>
-            <p><strong>Город:   </strong>{{ profile.location|default:"Не указан" }}</p>
+            <p><strong>Пол: </strong>{{ profile.get_gender_display|default:"Не указан" }}</p>
+            <p><strong>Город: </strong>{{ profile.location|default:"Не указан" }}</p>
             {% if owner %}
                 <a href="{% url "profile_editing" user.id %}"><input type="button" value="Редактировать"></a>
                 <a href="{% url "password_change" %}"><input type="button" value="Изменить пароль"></a>
             {% endif %}
         </div>
         <div class="profile-middle">
-            {% if not profile.email_confirmed and owner %}
+            {% comment %}            {% if not profile.email_confirmed and owner %}
                 <p style="color: darkred">Внимание, ваш email не подтвержден, некоторые действия могут быть недоступны.</p>
                 <a href="#"><input type="button" value="Подтвердить Email"></a>
                 <hr>
-            {% endif %}
+            {% endif %}{% endcomment %}
             <p><strong>О себе: </strong>{{ profile.bio|default:"Информация не указана" }}</p>
-            <p><strong>Список друзей: </strong></p>
-            {% for friend in friendlist %}
-                <p>{{ friend.username }}
-                    {% if owner %} | <a href="{% url "delete_from_friendlist" friend.id %}"> Удалить из друзей</a>
-                    {% endif %}
-                </p>
-            {% empty %}
-                <p>Список друзей еще пустой</p>
-            {% endfor %}
-            <a href="{% url "profiles_list" %}">Поиск среди пользователей</a>
+            <hr>
+            {% include fl_template_name %}
         </div>
         <div class="profile-right">
-            {% for p in profiles_from_friendship_notifications %}
-                <div class="profile-notification">
-                    <img src="{% if p.photo %}{{ p.photo.url }}{% else %}{% static 'img/no-avatar.png' %}{% endif %}"
-                         alt="Ooops" width="50px">
-                    <p> {{ p.user.first_name }} {{ p.user.last_name }} ({{ p.user.username }}) хочет добавить Вас в друзья</p>
-                    <div style="clear: both"></div>
-                    <a href="{% url "friendship_confirm" p.user.id %}">Принять</a>
-                    <a href="{% url "friendship_reject" p.user.id %}">Отклонить</a>
-                    {% if not forloop.last %}
-                    <hr>
-                    {% endif %}
-                </div>
-            {% empty %}
-                <p>Новых уведомлений нет</p>
-            {% endfor %}
+            <h3>Скоро здесь будут отображаться уведомления ⌛</h3>
         </div>
     </div>
 {% endblock %}

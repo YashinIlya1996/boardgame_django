@@ -1,0 +1,25 @@
+{% load static %}
+
+<p><a href="{% url "profile_detail" user.pk %}"><strong>Список друзей </strong></a>
+    {% if owner %}|
+        <strong>Входящие заявки </strong>|
+        <a href="{{ request.path }}?list=from-me"><strong>Исходящие заявки </strong></a>| {% endif %}
+    <a href="{% url "profiles_list" %}"><strong>Поиск среди пользователей</strong></a></p>
+{% for friend in friendlist %}
+    <div class="list-item">
+        <img src="{% if friend.profile.photo %}
+                        {{ friend.profile.photo.url }}
+                  {% else %}
+                        {% static 'img/no-avatar.png' %}
+                  {% endif %}" alt="Oooops" class="miniature">
+        <p><a href="{{ friend.profile.get_absolute_url }}">{{ friend.username }}</a> ({{ friend.get_full_name }})</p>
+        <a href="{% url "friendship_confirm" friend.pk %}"><input type="button"
+                                                                  style="font-size: 1rem; padding: 3px"
+                                                                  value="Принять"></a>
+        <a href="{% url "friendship_reject" friend.pk %}"><input type="button"
+                                                                 style="font-size: 1rem; padding: 3px; margin-left: 10px"
+                                                                 value="Отклонить"></a>
+    </div>
+{% empty %}
+    <h3>Новых входящих заявок на добавление в друзья нет</h3>
+{% endfor %}

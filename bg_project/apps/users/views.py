@@ -143,7 +143,6 @@ class MeetsListView(ListView):
         elif category == "past":
             return [x for x in Meeting.objects.all() if x.finished]
 
-
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(MeetsListView, self).get_context_data(object_list=object_list, **kwargs)
         context["active"] = "meets"
@@ -184,7 +183,16 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         """ Добавляет в контекст шаблона френдлист пользователя, чтобы не генерировать запрос внутри шаблона """
         context = super().get_context_data(**kwargs)
-        context["friendlist"] = self.get_object().friendlist.all()
+        qlist = self.request.GET.get("list")
+        if not self.request.user.is_authenticated or not qlist in ("to-me", "from-me"):
+            context["friendlist"] = self.get_object().friendlist.all()
+            context["fl_template_name"] = "users/friendlists/all_friends_in_my_fl.html"
+        elif qlist == "to-me":
+            context["friendlist"] = [u.sender for u in self.get_object().user.friendship_queries_to_me.select_related()]
+            context["fl_template_name"] = "users/friendlists/users_in_friendship_queries_to_me.html"
+        elif qlist == "from-me":
+            context["friendlist"] = [u.receiver for u in self.get_object().user.friendship_queries_from_me.select_related()]
+            context["fl_template_name"] = "users/friendlists/users_in_friendship_queries_from_me.html"
         context["owner"] = self.kwargs["user_id"] == self.request.user.id
         profiles = [fq.sender.profile for fq in self.request.user.friendship_queries_to_me.all()]
         context["profiles_from_friendship_notifications"] = profiles
@@ -281,6 +289,12 @@ def reject_friendship_query(request, user_id):
 
 
 @login_required
+def cancel_friendship_query(request, user_id):
+    """ Отменяет запрос на добавление в друзья, созданный залогинившимся пользователем в адрес пользователя user_id"""
+    FriendshipQuery.objects.filter(sender_id=request.user.pk, receiver_id=user_id).delete()
+    return redirect(request.META.get('HTTP_REFERER', reverse("profile_detail", args=[request.user.id])))
+
+@login_required
 def delete_from_friendlist(request, user_id):
     """ Удаляет пользователя с pk=user_id из ФЛ залогинившегося пользователя """
     deleted_user = get_object_or_404(User, pk=user_id)
@@ -365,3 +379,5 @@ def manage_meeting(request, meet_id):
         raise PermissionDenied("У вас недостаточно прав, чтобы управлять встречей")
     meet = get_object_or_404(Meeting, pk=meet_id)
     return render(request, "users/meet_detail.html", context={'meet': meet})
+
+

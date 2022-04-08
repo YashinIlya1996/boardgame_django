@@ -2,6 +2,7 @@ import datetime
 
 from django.db import models
 from django.conf import settings
+from django.shortcuts import reverse
 from django.contrib.auth.models import User
 
 from bg_project.apps.boardgames.models import BoardGame
@@ -37,6 +38,9 @@ class Profile(models.Model):
     location = models.CharField(max_length=200, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True, null=True)
+
+    def get_absolute_url(self):
+        return reverse("profile_detail", kwargs={"user_id": self.user.pk})
 
 
 class FriendshipQuery(models.Model):
