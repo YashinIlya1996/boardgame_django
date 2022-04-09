@@ -77,3 +77,10 @@ def send_meet_soon_notifications(meet_id: int):
         send_ok = mail.send(fail_silently=True)
         if send_ok:
             break
+
+
+def send_notification(users_id: list, message: str):
+    """ Создает объект Notification всем пользователям pk in users_id с полем message=message"""
+    users = User.objects.filter(pk__in=users_id)
+    notifications = [user_models.Notification(user=user, message=message) for user in users]
+    user_models.Notification.objects.bulk_create(notifications)

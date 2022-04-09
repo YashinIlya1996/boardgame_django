@@ -4,7 +4,6 @@
     {% if owner %}|
         <a href="{{ request.path }}?list=to-me"><strong>Входящие заявки </strong></a>|
         <a href="{{ request.path }}?list=from-me"><strong>Исходящие заявки </strong></a>| {% endif %}
-    <a href="{% url "profiles_list" %}"><strong>Поиск среди пользователей</strong></a></p>
 {% for friend in friendlist %}
     <div class="list-item">
         <img src="{% if friend.profile.photo %}

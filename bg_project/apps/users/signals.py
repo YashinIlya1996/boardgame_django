@@ -6,13 +6,14 @@ import uuid
 
 from django.dispatch import receiver
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, m2m_changed
 from django.utils import timezone
 from django.conf import settings
 from celery.result import AsyncResult
 
 from .models import Profile, WishList, Meeting
 from . import tasks
+from .services import send_notification
 
 
 # Декоратор receiver(signal) аналогичен конструкции signal.connect(func_callback)
@@ -53,3 +54,22 @@ def create_email_notification_celery_task(sender, **kwargs):
         meet.notification_task_uuid = uuid.UUID(res.id)
         meet.save(update_fields=('notification_task_uuid',))
 
+
+@receiver(m2m_changed, sender=Meeting.players.through)
+def create_meet_player_status_notification(sender, **kwargs):
+    """ Создает уведомление пользователю о добавлении или удалении из списка участников встречи."""
+    action = kwargs.get("action")
+    pk_set = kwargs.get("pk_set")
+    instance = kwargs.get("instance")  # type: Meeting
+    datetime_format = "%x в %X"
+    if action == "post_add":
+        message = f'Ваш запрос на участие во встрече' \
+                  f' {dt.datetime.combine(instance.date, instance.time).strftime(datetime_format)} ' \
+                  f'по адресу {instance.location} ' \
+                  f'принят! Удачной игры и приятного общения!'
+        send_notification(pk_set, message)
+    if action == "post_remove":
+        message = f'К сожалению, Вас исключили из участия во встрече' \
+                  f' {dt.datetime.combine(instance.date, instance.time).strftime(datetime_format)} ' \
+                  f'по адресу {instance.location}'
+        send_notification(pk_set, message)

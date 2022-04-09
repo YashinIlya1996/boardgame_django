@@ -1,8 +1,12 @@
 .profile-left {
     width: 20%;
-    box-shadow:  0 0 30px darkslategrey;
+    box-shadow: 0 0 30px darkslategrey;
     border-radius: 10px;
     padding: 20px;
+}
+
+.profile-left.without-notifications {
+    width: 35%;
 }
 
 .profile-left input[type=button] {
@@ -10,18 +14,38 @@
 }
 
 .profile-middle {
-    width: 55%;
+    width: 45%;
     padding: 20px;
-    box-shadow:  0 0 30px darkslategrey;
+    box-shadow: 0 0 30px darkslategrey;
     border-radius: 10px;
     max-height: 80vh;
     overflow: auto;
 }
 
+.profile-middle::-webkit-scrollbar {
+    width: 10px;
+    background-color: #f9f9fd;
+}
+
+.profile-middle::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: seagreen;
+}
+
+.profile-middle::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background-color: #f9f9fd;
+}
+
+.profile-middle.without-notifications {
+    width: 60%;
+}
+
 .profile-right {
-    width: 20%;
+    width: 30%;
     padding: 20px;
-    box-shadow:  0 0 30px darkslategrey;
+    box-shadow: 0 0 30px darkslategrey;
     border-radius: 10px;
     max-height: 80vh;
     overflow: auto;
@@ -30,13 +54,16 @@
 .profile-notification {
     width: 100%;
     margin-bottom: 20px;
+    box-shadow: 0 0 5px darkslategrey;
+    border-radius: 10px;
+    padding: 1px 5px;
 }
 
-.profile-notification img {
-    margin: 10px;
-    float: left;
-}
+/*.profile-notification img {*/
+/*    margin: 10px;*/
+/*    float: left;*/
+/*}*/
 
-.profile-notification a {
-    clear: both;
-}
+/*.profile-notification a {*/
+/*    clear: both;*/
+/*}*/

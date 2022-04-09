@@ -11,7 +11,13 @@ from django.conf import settings
 from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm, ConfirmEmailForm, CreateMeetForm
 from .models import WishList, Profile, FriendshipQuery, Meeting
 from bg_project.apps.boardgames.models import BoardGame
-from .services import apply_search_query_games, is_friends, make_friends, unmake_friends, is_meet_creator
+from .services import (apply_search_query_games,
+                       is_friends,
+                       make_friends,
+                       unmake_friends,
+                       is_meet_creator,
+                       send_notification,
+                       )
 from .tasks import celery_send_confirm_email
 
 
@@ -191,13 +197,17 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
             context["friendlist"] = [u.sender for u in self.get_object().user.friendship_queries_to_me.select_related()]
             context["fl_template_name"] = "users/friendlists/users_in_friendship_queries_to_me.html"
         elif qlist == "from-me":
-            context["friendlist"] = [u.receiver for u in self.get_object().user.friendship_queries_from_me.select_related()]
+            context["friendlist"] = [u.receiver for u in
+                                     self.get_object().user.friendship_queries_from_me.select_related()]
             context["fl_template_name"] = "users/friendlists/users_in_friendship_queries_from_me.html"
-        context["owner"] = self.kwargs["user_id"] == self.request.user.id
+        owner = self.kwargs["user_id"] == self.request.user.id
+        context["owner"] = owner
         profiles = [fq.sender.profile for fq in self.request.user.friendship_queries_to_me.all()]
         context["profiles_from_friendship_notifications"] = profiles
         context["users_from_friendship_notifications"] = [p.user for p in profiles]
         context["active"] = "profile"
+        if owner:
+            context["notifications"] = self.request.user.notifications.all()
         return context
 
 
@@ -294,6 +304,7 @@ def cancel_friendship_query(request, user_id):
     FriendshipQuery.objects.filter(sender_id=request.user.pk, receiver_id=user_id).delete()
     return redirect(request.META.get('HTTP_REFERER', reverse("profile_detail", args=[request.user.id])))
 
+
 @login_required
 def delete_from_friendlist(request, user_id):
     """ Удаляет пользователя с pk=user_id из ФЛ залогинившегося пользователя """
@@ -312,6 +323,10 @@ def create_meet(request):
             new_meet = form.save(commit=False)
             new_meet.creator = creator
             new_meet.save()
+            friendlist = creator.profile.friendlist.values_list('pk', flat=True)
+            message = f"Ваш друг {creator.get_full_name()} ({creator.username}) создал новую" \
+                      f' <a href="{reverse("meets", args=["future"])}">встречу</a>!'
+            send_notification(friendlist, message)
             return redirect("meets", "future")
     else:
         form = CreateMeetForm()
@@ -356,8 +371,8 @@ def confirm_meet_request(request, meet_id, user_id):
         raise PermissionDenied("У вас недостаточно прав, чтобы управлять встречей")
     meet = get_object_or_404(Meeting, pk=meet_id)
     player = get_object_or_404(User, pk=user_id)
-    meet.in_request.remove(player)
     meet.players.add(player)
+    meet.in_request.remove(player)
     return redirect(request.META.get('HTTP_REFERER', reverse("meets", args=["future"])))
 
 
@@ -379,5 +394,3 @@ def manage_meeting(request, meet_id):
         raise PermissionDenied("У вас недостаточно прав, чтобы управлять встречей")
     meet = get_object_or_404(Meeting, pk=meet_id)
     return render(request, "users/meet_detail.html", context={'meet': meet})
-
-

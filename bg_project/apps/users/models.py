@@ -55,7 +55,7 @@ class FriendshipQuery(models.Model):
 
 class Notification(models.Model):
     """ Уведомление пользователю о каком-либо событии (запрос на добавление в друзья, приглашение во встречу,
-        создание встречи другом и т.д.)"""
+        создание встречи другом и т.д."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
     is_read = models.BooleanField(default=False)

@@ -10,7 +10,7 @@
 
 {% block content %}
     <div class="main-container" style="justify-content: space-around">
-        <div class="profile-left">
+        <div class="profile-left {% if not owner %}without-notifications{% endif %}">
             <img src="
                     {% if profile.photo %}{{ profile.photo.url }}{% else %}{% static 'img/no-avatar.png' %}{% endif %}"
                  alt="Ooops" style="max-width: 100%">
@@ -25,18 +25,21 @@
                 <a href="{% url "password_change" %}"><input type="button" value="Изменить пароль"></a>
             {% endif %}
         </div>
-        <div class="profile-middle">
-            {% comment %}            {% if not profile.email_confirmed and owner %}
-                <p style="color: darkred">Внимание, ваш email не подтвержден, некоторые действия могут быть недоступны.</p>
-                <a href="#"><input type="button" value="Подтвердить Email"></a>
-                <hr>
-            {% endif %}{% endcomment %}
+        <div class="profile-middle {% if not owner %}without-notifications{% endif %}">
             <p><strong>О себе: </strong>{{ profile.bio|default:"Информация не указана" }}</p>
             <hr>
+            <a href="{% url "profiles_list" %}"><input type="button" value="Поиск среди пользователей" style="font-size: 1rem"></a>
             {% include fl_template_name %}
         </div>
+        {% if owner %}
         <div class="profile-right">
-            <h3>Скоро здесь будут отображаться уведомления ⌛</h3>
+            <h3 style="text-align: center">Уведомления</h3>
+            {% for notification in notifications %}
+            <div class="profile-notification">
+                <p>{{ notification.message|safe }}</p>
+            </div>
+            {% endfor %}
         </div>
+        {% endif %}
     </div>
 {% endblock %}
