@@ -1,21 +1,15 @@
-{% load static %}
+{% load static users_custom_tags %}
 
 <p><strong>Список друзей </strong>
     {% if owner %}|
         <a href="{{ request.path }}?list=to-me"><strong>Входящие заявки </strong></a>|
         <a href="{{ request.path }}?list=from-me"><strong>Исходящие заявки </strong></a>| {% endif %}
 {% for friend in friendlist %}
-    <div class="list-item">
-        <img src="{% if friend.profile.photo %}
-                        {{ friend.profile.photo.url }}
-                  {% else %}
-                        {% static 'img/no-avatar.png' %}
-                  {% endif %}" alt="Oooops" class="miniature">
-        <p><a href="{{ friend.profile.get_absolute_url }}">{{ friend.username }}</a> ({{ friend.get_full_name }})</p>
-        <a href="{% url "delete_from_friendlist" friend.pk %}"><input type="button"
-                                                                      style="font-size: 1rem; padding: 3px"
-                                                                      value="Удалить из друзей"></a>
-    </div>
-{% empty %}
+    {% if owner %}
+        {% list_item_user friend "delete" %}
+    {% else %}
+        {% list_item_user friend %}
+    {% endif %}
+  {% empty %}
     <p>Список друзей еще пустой</p>
 {% endfor %}

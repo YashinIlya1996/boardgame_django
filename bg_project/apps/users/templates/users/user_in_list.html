@@ -1,0 +1,29 @@
+{% load static %}
+
+<div class="list-item">
+    <img src="{% if user_to_print.profile.photo %}
+                        {{ user_to_print.profile.photo.url }}
+                  {% else %}
+                        {% static 'img/no-avatar.png' %}
+                  {% endif %}" alt="Oooops" class="miniature">
+    <p><a href="{{ user_to_print.profile.get_absolute_url }}">{{ user_to_print.username }}</a>
+        ({{ user_to_print.get_full_name }})</p>
+    {% if button %}
+        {% if button == "delete" %}
+            <a href="{% url "delete_from_friendlist" user_to_print.pk %}"><input type="button"
+                                                                          style="font-size: 1rem; padding: 3px"
+                                                                          value="Удалить из друзей"></a>
+        {% elif button == "query-from-me" %}
+            <a href="{% url "cancel_friendship_query" user_to_print.pk %}"><input type="button"
+                                                                           style="font-size: 1rem; padding: 3px"
+                                                                           value="Отменить заявку"></a>
+        {% elif button == "query-to-me" %}
+            <a href="{% url "friendship_confirm" user_to_print.pk %}"><input type="button"
+                                                                      style="font-size: 1rem; padding: 3px"
+                                                                      value="Принять"></a>
+            <a href="{% url "friendship_reject" user_to_print.pk %}"><input type="button"
+                                                                     style="font-size: 1rem; padding: 3px; margin-left: 10px"
+                                                                     value="Отклонить"></a>
+        {% endif %}
+    {% endif %}
+</div>
