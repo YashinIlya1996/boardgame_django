@@ -1,40 +1,32 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static users_custom_tags %}
 
-{% block title %}Управление встречей{% endblock %}
+{% block title %}Встреча {{ meet.date|date:"d.m.Y" }}{% endblock %}
+
+{% block css_addition %}
+    <link rel="stylesheet" href="{% static "users/css/meet_detail.css" %}">
+    <link rel="stylesheet" href="{% static "users/css/friendlist.css" %}">
+{% endblock %}
 
 {% block content %}
-    <div>
-        <h2>Общее описание</h2>
-        <p><b>Создатель встречи:</b> {{ meet.creator.get_full_name|default:meet.creator.username }}</p>
-        <p><b>Дата: </b>{{ meet.date|date:"j E Y (l)" }}</p>
-        <p><b>Время: </b>{{ meet.time|time:"H:i" }}</p>
-        <p><b>Место проведения: </b>{{ meet.location }}</p>
-        <p><b>Описание: </b>{{ meet.description }}</p>
-        <p><b>Количество участников: </b>{{ meet.players.count }}</p>
-    </div>
-    <hr>
-    <div>
-        <h2>Заявки на участие: </h2>
-        {% for player in meet.in_request.all %}
-            <p>{{ player.get_full_name|default:player.username }}</p>
-            <p>
-                <a href="{% url "confirm_meet_request" meet.pk player.pk %}">Принять</a> |
-                <a href="{% url "reject_meet_request" meet.pk player.pk %}">Отклонить</a>
-            </p>
-        {% empty %}
-            <p>Заявок нет</p>
-        {% endfor %}
-    </div>
-    <hr>
-    <div>
-        <h2>Участники: </h2>
-        {% for player in meet.players.all %}
-            <p>
-                {{ player.get_full_name|default:player.username }} |
-                <a href="{% url "delete_player" meet.pk player.pk %}">Удалить из встречи</a>
-            </p>
-        {% empty %}
-            <p>Участников нет</p>
-        {% endfor %}
+    <div class="main-container">
+        <div class="meet-header">
+            <h2>Общее описание</h2>
+            <p><b>Создатель встречи:</b> {{ meet.creator.get_full_name|default:meet.creator.username }}</p>
+            <p><b>Дата: </b>{{ meet.date|date:"j E Y (l)" }}</p>
+            <p><b>Время: </b>{{ meet.time|time:"H:i" }}</p>
+            <p><b>Место проведения: </b>{{ meet.location }}</p>
+            <p><b>Описание: </b>{{ meet.description }}</p>
+            <p><b>Количество участников: </b>{{ meet.players.count }}</p>
+        </div>
+        <hr>
+        <div class="meet-players">
+            <h2>Участники:</h2>
+            {% for player in meet.players.all %}
+                {% list_item_user player %}
+            {% empty %}
+                <h2>В этой встрече ещё никто не участвует</h2>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

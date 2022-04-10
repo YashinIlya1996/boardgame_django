@@ -1,4 +1,5 @@
 from django.shortcuts import reverse, render, redirect, get_object_or_404
+from django.http.response import Http404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.contrib.auth import login
@@ -9,7 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.conf import settings
 
 from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm, ConfirmEmailForm, CreateMeetForm
-from .models import WishList, Profile, FriendshipQuery, Meeting
+from .models import WishList, Profile, FriendshipQuery, Meeting, Notification
 from bg_project.apps.boardgames.models import BoardGame
 from .services import (apply_search_query_games,
                        is_friends,
@@ -207,7 +208,8 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         context["users_from_friendship_notifications"] = [p.user for p in profiles]
         context["active"] = "profile"
         if owner:
-            context["notifications"] = self.request.user.notifications.all()
+            context["read_notifications"] = self.request.user.notifications.filter(is_read=True)
+            context["unread_notifications"] = self.request.user.notifications.filter(is_read=False)
         return context
 
 
@@ -325,7 +327,7 @@ def create_meet(request):
             new_meet.save()
             friendlist = creator.profile.friendlist.values_list('pk', flat=True)
             message = f"Ваш друг {creator.get_full_name()} ({creator.username}) создал новую" \
-                      f' <a href="{reverse("meets", args=["future"])}">встречу</a>!'
+                      f' <a href="{new_meet.get_absolute_url()}">встречу</a>!'
             send_notification(friendlist, message)
             return redirect("meets", "future")
     else:
@@ -393,4 +395,41 @@ def manage_meeting(request, meet_id):
     if not is_meet_creator(request, meet_id):
         raise PermissionDenied("У вас недостаточно прав, чтобы управлять встречей")
     meet = get_object_or_404(Meeting, pk=meet_id)
-    return render(request, "users/meet_detail.html", context={'meet': meet})
+    return render(request, "users/meet_manage.html", context={'meet': meet,
+                                                              'active': 'meets'})
+
+
+class MeetDetail(DetailView):
+    """ Детальная страница встречи"""
+    model = Meeting
+    context_object_name = "meet"
+    template_name = "users/meet_detail.html"
+
+    def get_object(self, queryset=None):
+        try:
+            meet = Meeting.objects.prefetch_related('players').get(pk=self.kwargs["meet_pk"])
+            return meet
+        except ObjectDoesNotExist:
+            raise Http404
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["active"] = "meets"
+        return context
+
+
+@login_required
+def read_notification(request, not_id=None):
+    """ Устанавливает статус is_read уведомлению pk=not_id или всем уведомлениям пользователя,
+        если not_id is None"""
+    if not not_id:
+        request.user.notifications.all().update(is_read=True)
+    else:
+        notification = get_object_or_404(Notification, pk=not_id)
+        if request.user.pk != notification.user.pk:
+            raise PermissionDenied("Чужое уведомление")
+        notification.is_read = True
+        notification.save(update_fields=['is_read'])
+    return redirect(request.META.get('HTTP_REFERER', reverse("profile_detail", args=[request.user.pk])))
+
+

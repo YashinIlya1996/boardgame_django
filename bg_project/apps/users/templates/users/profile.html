@@ -28,18 +28,36 @@
         <div class="profile-middle {% if not owner %}without-notifications{% endif %}">
             <p><strong>О себе: </strong>{{ profile.bio|default:"Информация не указана" }}</p>
             <hr>
-            <a href="{% url "profiles_list" %}"><input type="button" value="Поиск среди пользователей" style="font-size: 1rem"></a>
+            <a href="{% url "profiles_list" %}"><input type="button" value="Поиск среди пользователей"
+                                                       style="font-size: 1rem"></a>
             {% include fl_template_name %}
         </div>
         {% if owner %}
-        <div class="profile-right">
+            <div class="profile-right">
             <h3 style="text-align: center">Уведомления</h3>
-            {% for notification in notifications %}
-            <div class="profile-notification">
-                <p>{{ notification.message|safe }}</p>
-            </div>
+            <hr>
+            <p><strong>Новые уведомления: </strong></p>
+            {% for notification in unread_notifications %}
+                <div class="profile-notification">
+                    <p>{{ forloop.counter }}. {{ notification.message|safe }}</p>
+                    <a href="{% url "read_notification" notification.pk %}">В прочитанные </a>
+                </div>
+            {% empty %}
+                Пусто
             {% endfor %}
-        </div>
+            {% if unread_notifications %}
+                <p><a href="{% url "read_all_notification" %}"> Прочитать все </a></p>
+            {% endif %}
+            <hr>
+            <p><strong>Прочитанные уведомления:</strong></p>
+            {% for notification in read_notifications %}
+                <div class="profile-notification">
+                <p>{{ forloop.counter }}. {{ notification.message|safe }}</p>
+                    </div>
+                {% empty %}
+                    Пусто
+                {% endfor %}
+            </div>
         {% endif %}
     </div>
 {% endblock %}

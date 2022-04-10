@@ -13,7 +13,7 @@ class WishList(models.Model):
     """ Модель описывает Вишлист пользователя.
         Создание подвешено через сигнал на создание пользователя. """
     user = models.OneToOneField(to=settings.AUTH_USER_MODEL,
-                                on_delete=models.CASCADE,)
+                                on_delete=models.CASCADE, )
     games = models.ManyToManyField(BoardGame, related_name="wish_lists")
 
     def __str__(self):
@@ -58,7 +58,11 @@ class Notification(models.Model):
         создание встречи другом и т.д."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ('-created_at',)
 
 
 class Meeting(models.Model):
@@ -74,6 +78,9 @@ class Meeting(models.Model):
     location = models.CharField(max_length=250)
     notification_task_uuid = models.UUIDField(null=True)
 
+    def get_absolute_url(self):
+        return reverse("meet_detail", args=[self.pk])
+
     @property
     def finished(self):
         """ True, если время игры истекло """
@@ -81,5 +88,3 @@ class Meeting(models.Model):
 
     class Meta:
         ordering = ('date', 'time')
-
-

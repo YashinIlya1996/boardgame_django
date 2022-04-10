@@ -1,0 +1,22 @@
+.main-container {
+    max-width: 900px;
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 0 0 5px darkslategrey;
+    display: block;
+}
+
+.meet-header {
+    padding: 20px;
+    margin: auto;
+}
+
+.meet-players {
+    max-width: 80%;
+    margin: auto;
+    padding: 20px;
+}
+
+.meet-players h2 {
+    text-align: center;
+}
