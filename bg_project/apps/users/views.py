@@ -341,17 +341,23 @@ def send_meet_request(request, meet_id):
     meet = get_object_or_404(Meeting, pk=meet_id)
     sender = request.user
     if sender not in meet.players.all() and sender != meet.creator:
-        meet.in_request.add(sender)
+        sender.meets_in_request.add(meet)
     return redirect(request.META.get('HTTP_REFERER', reverse("meets", args=["future"])))
 
 
 @login_required
 def leave_meet_and_cancel_meet_request(request, meet_id):
     """ Отменяет заявку пользователя на участие во встрече """
-    meet = get_object_or_404(Meeting, pk=meet_id)
+    # meet = get_object_or_404(Meeting, pk=meet_id)
+    try:
+        meet = Meeting.objects.prefetch_related('players', 'in_request').get(pk=meet_id)
+    except ObjectDoesNotExist:
+        raise Http404
     user = request.user
-    meet.in_request.remove(user)
-    meet.players.remove(user)
+    if user in meet.players.all():
+        user.meets.remove(meet)
+    if user in meet.in_request.all():
+        user.meets_in_request.remove(meet)
     return redirect(request.META.get('HTTP_REFERER', reverse("meets", args=["future"])))
 
 

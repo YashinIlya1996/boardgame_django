@@ -60,16 +60,62 @@ def create_meet_player_status_notification(sender, **kwargs):
     """ Создает уведомление пользователю о добавлении или удалении из списка участников встречи."""
     action = kwargs.get("action")
     pk_set = kwargs.get("pk_set")
-    instance = kwargs.get("instance")  # type: Meeting
+    instance = kwargs.get("instance")  # type: Meeting or User
     datetime_format = "%x в %X"
+
+    # Запрос на участие принят
     if action == "post_add":
         message = f'Ваш запрос на участие во встрече' \
                   f' {dt.datetime.combine(instance.date, instance.time).strftime(datetime_format)} ' \
                   f'по адресу {instance.location} ' \
                   f'принят! Удачной игры и приятного общения!'
         send_notification(pk_set, message)
-    if action == "post_remove":
+
+    # Пользователя исключили из встречи
+    elif action == "post_remove" and isinstance(instance, Meeting):
         message = f'К сожалению, Вас исключили из участия во встрече' \
                   f' {dt.datetime.combine(instance.date, instance.time).strftime(datetime_format)} ' \
                   f'по адресу {instance.location}'
+        send_notification(pk_set, message)
+
+    # Пользователь сам вышел из встречи - уведомление создателю встречи
+    elif action == "post_remove" and isinstance(instance, User):
+        meet = Meeting.objects.filter(pk__in=pk_set)[0]
+        message = f'Созданную Вами <a href="{meet.get_absolute_url()}">встречу</a> ' \
+                  f'({dt.datetime.combine(meet.date, meet.time).strftime(datetime_format)}) ' \
+                  f'покинул <a href="{instance.profile.get_absolute_url()}">{instance.get_full_name()}</a>'
+        send_notification([meet.creator.pk], message)
+
+
+@receiver(m2m_changed, sender=Meeting.in_request.through)
+def create_meet_request_notification(sender, **kwargs):
+    """ Создает уведомление создателю встречи при добавлении запроса на участие в его встречу,
+        при отмене запроса на участие, а также пользователю, направившему запрос, если его запрос отклонен"""
+    action = kwargs.get("action")
+    pk_set = kwargs.get("pk_set")
+    instance = kwargs.get("instance")  # type: Meeting or User
+    datetime_format = "%d.%m.%Y в %H:M"
+
+    # Направлен запрос на участие во встрече - уведомление создателю встречи
+    if action == "post_add":
+        meet = Meeting.objects.filter(pk__in=pk_set)[0]
+        message = f'<a href="{instance.profile.get_absolute_url()}">{instance.get_full_name()}</a> хочет принять' \
+                  f'участие в созданной Вами <a href="{meet.get_absolute_url()}">встрече</a> ' \
+                  f'({dt.datetime.combine(meet.date, meet.time).strftime(datetime_format)})!'
+        send_notification([meet.creator.pk], message)
+
+    # Пользователь отменил запрос на участие во встрече - уведомление создателю встречи
+    elif action == "post_remove" and isinstance(instance, User):
+        meet = Meeting.objects.filter(pk__in=pk_set)[0]
+        message = f'<a href="{instance.profile.get_absolute_url()}">{instance.get_full_name()}</a> отменил запрос ' \
+                  f'на участие в созданной Вами <a href="{meet.get_absolute_url()}">встрече</a> ' \
+                  f'({dt.datetime.combine(meet.date, meet.time).strftime(datetime_format)}).'
+        send_notification([meet.creator.pk], message)
+
+    # Создатель встречи отклонил запрос пользователя - уведомление пользователю
+    elif action == "post_remove" and isinstance(instance, Meeting) \
+            and instance not in User.objects.get(pk__in=pk_set).meets.all():
+        message = f'К сожалению, создатель <a href="{instance.get_absolute_url()}">встречи</a> ' \
+                  f'({dt.datetime.combine(instance.date, instance.time).strftime(datetime_format)})' \
+                  f' отклонил Ваш запрос на участие.'
         send_notification(pk_set, message)
