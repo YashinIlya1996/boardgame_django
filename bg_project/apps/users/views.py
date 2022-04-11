@@ -85,12 +85,22 @@ class UsersWishlistView(LoginRequiredMixin, ListView):
     template_name = 'users/wishlist.html'
     paginate_by = 10
     context_object_name = "wishlist"
+    
+    def get(self, *args, **kwargs):
+        user_id = self.kwargs.get("user_id")
+        if user_id:
+            friend = get_object_or_404(User, pk=user_id)
+            if self.request.user not in friend.profile.friendlist.all():
+                raise PermissionDenied
+        return super(UsersWishlistView, self).get(*args, **kwargs)
 
     def get_queryset(self):
-        """
-        Передает в queryset игры из вишлиста пользователя, применяя, при наличии, фильтр поиска
-        """
-        games = WishList.objects.get(user=self.request.user).games.all()
+        """ Передает в queryset игры из вишлиста пользователя, применяя, при наличии, фильтр поиска """
+        user_id = self.kwargs.get("user_id", self.request.user.id)
+        try:
+            games = WishList.objects.get(user_id=user_id).games.all()
+        except ObjectDoesNotExist:
+            raise Http404
         games = apply_search_query_games(games, self.request)
         return games
 
@@ -101,6 +111,8 @@ class UsersWishlistView(LoginRequiredMixin, ListView):
         Также добавляет в контекст текстовый запрос из сессии, при наличии
         """
         context = super().get_context_data(**kwargs)
+        user_id = self.kwargs.get("user_id", self.request.user.id)
+        context["user_owner_name"] = get_object_or_404(User, pk=user_id).get_full_name()
         if self.request.user.is_authenticated:
             user = self.request.user
             try:
@@ -111,6 +123,8 @@ class UsersWishlistView(LoginRequiredMixin, ListView):
         if search := self.request.session.get("search"):
             context["search_str"] = search
         context["active"] = "wishlist"
+        context["user_owner"] = self.kwargs.get("user_id", self.request.user.id)
+        context["owner"] = self.request.user.id == self.kwargs.get("user_id", self.request.user.id)
         return context
 
     def paginate_queryset(self, queryset, page_size):
@@ -191,7 +205,7 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         """ Добавляет в контекст шаблона френдлист пользователя, чтобы не генерировать запрос внутри шаблона """
         context = super().get_context_data(**kwargs)
         qlist = self.request.GET.get("list")
-        if not self.request.user.is_authenticated or not qlist in ("to-me", "from-me"):
+        if qlist not in ("to-me", "from-me"):
             context["friendlist"] = self.get_object().friendlist.all()
             context["fl_template_name"] = "users/friendlists/all_friends_in_my_fl.html"
         elif qlist == "to-me":

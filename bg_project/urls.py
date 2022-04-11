@@ -17,6 +17,7 @@ urlpatterns = [
     path('accounts/', include('bg_project.apps.users.urls')),
     path('games/', include('bg_project.apps.boardgames.urls')),
     path('wishlist/', user_views.UsersWishlistView.as_view(), name="wishlist"),
+    path('wishlist/<int:user_id>/', user_views.UsersWishlistView.as_view(), name="other_wishlist"),
     path('meet/<int:meet_pk>/', user_views.MeetDetail.as_view(), name="meet_detail"),
     path('meets/manage/<int:meet_id>/', user_views.manage_meeting, name="manage_meeting"),
     path('meets/create/', user_views.create_meet, name="create_meet"),

@@ -5,6 +5,7 @@ import datetime as dt
 import uuid
 
 from django.dispatch import receiver
+from django.shortcuts import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, m2m_changed, post_delete
 from django.utils import timezone
@@ -163,3 +164,26 @@ def create_add_delete_from_friendlist_notification(sender, **kwargs):
         message = f'Пользователь <a href="{instance.get_absolute_url()}">{instance.user.get_full_name()}</a> ' \
                   f'удалил Вас из списка друзей.'
         send_notification(pk_set, message)
+
+
+@receiver(m2m_changed, sender=WishList.games.through)
+def create_friend_changes_wl_notification(sender, **kwargs):
+    """ Отправляет уведомление друзьям пользователя, изменившего состав вишлиста """
+    action = kwargs.get("action")
+    pk_set = kwargs.get("pk_set")  # множество Boardgame.pk
+    instance = kwargs.get("instance")  # type: WishList
+    model = kwargs.get("model")
+    if action in ("post_add", "post_remove"):
+        user = instance.user
+        profile = user.profile
+        receivers = profile.friendlist.values_list('pk', flat=True)
+        game = model.objects.get(pk__in=pk_set)
+        if action == "post_add":
+            message = f'Ваш друг <a href="{profile.get_absolute_url()}">{user.get_full_name()}</a> ' \
+                      f'добавил игру <a href="{game.get_absolute_url()}">{game.title}</a> ' \
+                      f'в свой <a href="{reverse("other_wishlist", args=[user.pk])}">Wishlist</a>'
+        else:
+            message = f'Ваш друг <a href="{profile.get_absolute_url()}">{user.get_full_name()}</a> ' \
+                      f'удалил игру <a href="{game.get_absolute_url()}">{game.title}</a> ' \
+                      f'из своего <a href="{reverse("other_wishlist", args=[user.pk])}">Wishlist</a>'
+        send_notification(receivers, message)

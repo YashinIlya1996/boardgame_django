@@ -19,8 +19,11 @@
 <!-- Вывод всех игр -->
     <div class="main-container">
         <div class="list-container">
+            {% if not owner %}
+                <h3>Wishlist пользователя {{ user_owner_name }}</h3>
+            {% endif %}
             {% for game in wishlist %}
-                {% list_item_game %}
+                {% list_item_game button=owner %}
             {% empty %}
                 <h1 style="text-align: center">Ваш wishlist пока ещё пустой</h1>
             {% endfor %}

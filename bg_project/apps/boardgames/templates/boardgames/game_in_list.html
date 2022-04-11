@@ -4,7 +4,7 @@
     <img src="{{ game.photo.url }}" alt="Ooops">
     <a href="{{ game.get_absolute_url }}"><h1>{{ game.title }}</h1></a>
     <p>{{ game.description | truncatewords:100 }}</p>
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and button %}
         <form action="{% url "wl_adding" game.tesera_alias %}">
             <input type="hidden" name="next" value="{{ game|url_with_anchor:full_path }}">
             {% if game in users_wl %}

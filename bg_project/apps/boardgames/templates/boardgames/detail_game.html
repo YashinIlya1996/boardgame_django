@@ -25,7 +25,7 @@
                     <span><strong>{{ game.avg_game_time|default:" - " }} мин. </strong></span></p>
                 <p><span>👪</span>
                     {% if game.min_players_count or game.max_players_count %}
-                        <span><strong>от {{ game.min_players_count }} до {{ game.max_players_count }}</strong></span>
+                        <span><strong>от {{ game.min_players_count|default:1 }} до {{ game.max_players_count }}</strong></span>
                     {% else %}
                         <span><stron> - </stron></span>
                     {% endif %}
