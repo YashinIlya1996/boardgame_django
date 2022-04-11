@@ -46,8 +46,9 @@ def sign_up(request):
                 user = sign_up_form.save()
                 user.is_active = False
                 user.save()
+                url = "https://boardgames-project.ru"
                 celery_send_confirm_email.delay(user.email, user.profile.email_confirm_code,
-                                                reverse("confirm_sign_up", args=[user.username]))
+                                                url + reverse("confirm_sign_up", args=[user.username]))
                 return redirect(reverse("confirm_sign_up", args=[user.username]))
             user = sign_up_form.save()
             login(request=request, user=user)

@@ -1,3 +1,5 @@
+{% load boardgames_custom_filters %}
+
 <div class="sidebar">
     <form action="">
         <input type="text" name="{{ search_name|default:"search" }}">
@@ -6,4 +8,7 @@
                                                                           style="width: 45%; display: inline-block; float: right"></a>
     </form>
     <h3>Добро пожаловать, {{ user.get_full_name|default:user.username|default:"незнакомец" }}</h3>
+    {% if user.is_authenticated %}
+        <p>🔔 у Вас {{ user|unread_notifications_count|default:"нет" }} непрочитанных уведомлений</p>
+    {% endif %}
 </div>

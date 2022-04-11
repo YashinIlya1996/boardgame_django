@@ -80,3 +80,6 @@ class BoardGameViewSet(viewsets.ModelViewSet):
     serializer_class = BoardGamesListSerializer
     queryset = get_queryset_bg_by_default_ordering()
 
+
+def about(request):
+    return render(request, 'boardgames/about.html')

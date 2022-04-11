@@ -22,13 +22,40 @@
 
 .index-text {
     align-self: center;
+    font-size: 1.3rem;
     background-color: rgba(255, 255, 255, 0.6);
-    max-width: 50%;
-    max-height: 70%;
+    width: 70%;
+    max-height: 85%;
     overflow: auto;
     margin: auto;
     padding: 40px;
     border-radius: 20px;
     z-index: 1;
     position: relative;
+}
+
+.about-text p, ul {
+    text-align: justify;
+    text-indent: 2em;
+}
+
+li {
+    margin-bottom: 0.5em;
+    text-indent: 0.2em;
+}
+
+.index-text::-webkit-scrollbar {
+    width: 10px;
+    background-color: #f9f9fd;
+}
+
+.index-text::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: seagreen;
+}
+
+.index-text::-webkit-scrollbar-track{
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background-color: #f9f9fd;
 }

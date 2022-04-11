@@ -14,6 +14,7 @@ register_converter(MeetCategory, "meet_category")
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
+    path('about/', boardgames_views.about, name="about"),
     path('accounts/', include('bg_project.apps.users.urls')),
     path('games/', include('bg_project.apps.boardgames.urls')),
     path('wishlist/', user_views.UsersWishlistView.as_view(), name="wishlist"),
