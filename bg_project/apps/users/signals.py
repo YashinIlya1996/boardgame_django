@@ -65,7 +65,8 @@ def create_meet_player_status_notification(sender, **kwargs):
 
     # Запрос на участие принят
     if action == "post_add":
-        message = f'Ваш запрос на участие во встрече' \
+        message = f'Ваш запрос на участие во ' \
+                  f'<a href="{instance.get_absolute_url()}">встрече</a>' \
                   f' {dt.datetime.combine(instance.date, instance.time).strftime(datetime_format)} ' \
                   f'по адресу {instance.location} ' \
                   f'принят! Удачной игры и приятного общения!'
@@ -73,7 +74,8 @@ def create_meet_player_status_notification(sender, **kwargs):
 
     # Пользователя исключили из встречи
     elif action == "post_remove" and isinstance(instance, Meeting):
-        message = f'К сожалению, Вас исключили из участия во встрече' \
+        message = f'К сожалению, Вас исключили из участия во ' \
+                  f'<a href="{instance.get_absolute_url()}">встрече</a>' \
                   f' {dt.datetime.combine(instance.date, instance.time).strftime(datetime_format)} ' \
                   f'по адресу {instance.location}'
         send_notification(pk_set, message)
@@ -94,7 +96,7 @@ def create_meet_request_notification(sender, **kwargs):
     action = kwargs.get("action")
     pk_set = kwargs.get("pk_set")
     instance = kwargs.get("instance")  # type: Meeting or User
-    datetime_format = "%d.%m.%Y в %H:M"
+    datetime_format = "%d.%m.%Y в %H:%M"
 
     # Направлен запрос на участие во встрече - уведомление создателю встречи
     if action == "post_add":
@@ -159,5 +161,5 @@ def create_add_delete_from_friendlist_notification(sender, **kwargs):
         send_notification(pk_set, message)
     elif action == "post_remove" and not reverse:
         message = f'Пользователь <a href="{instance.get_absolute_url()}">{instance.user.get_full_name()}</a> ' \
-                  f'удалил Вас из списка друзей'
+                  f'удалил Вас из списка друзей.'
         send_notification(pk_set, message)

@@ -17,6 +17,7 @@
     padding: 20px;
 }
 
-.meet-players h2 {
+.meet-players h2,
+.meet-header h2 {
     text-align: center;
 }

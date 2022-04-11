@@ -11,19 +11,32 @@
     {% if button %}
         {% if button == "delete" %}
             <a href="{% url "delete_from_friendlist" user_to_print.pk %}"><input type="button"
-                                                                          style="font-size: 1rem; padding: 3px"
-                                                                          value="Удалить из друзей"></a>
+                                                                                 style="font-size: 1rem; padding: 3px"
+                                                                                 value="Удалить из друзей"></a>
         {% elif button == "query-from-me" %}
             <a href="{% url "cancel_friendship_query" user_to_print.pk %}"><input type="button"
-                                                                           style="font-size: 1rem; padding: 3px"
-                                                                           value="Отменить заявку"></a>
+                                                                                  style="font-size: 1rem; padding: 3px"
+                                                                                  value="Отменить заявку"></a>
         {% elif button == "query-to-me" %}
             <a href="{% url "friendship_confirm" user_to_print.pk %}"><input type="button"
-                                                                      style="font-size: 1rem; padding: 3px"
-                                                                      value="Принять"></a>
+                                                                             style="font-size: 1rem; padding: 3px"
+                                                                             value="Принять"></a>
             <a href="{% url "friendship_reject" user_to_print.pk %}"><input type="button"
-                                                                     style="font-size: 1rem; padding: 3px; margin-left: 10px"
-                                                                     value="Отклонить"></a>
+                                                                            style="font-size: 1rem; padding: 3px; margin-left: 10px"
+                                                                            value="Отклонить"></a>
+        {% elif button == "meet_player" %}
+            <a href="{% url "delete_player" meet_id user_to_print.pk %}"><input type="button"
+                                                                                style="font-size: 1rem; padding: 3px"
+                                                                                value="Удалить из участников"></a>
+        {% elif button == "meet_in_request" %}
+            <a href="{% url "confirm_meet_request" meet_id user_to_print.pk %}"><input type="button"
+                                                                                       style="font-size: 1rem; padding: 3px"
+                                                                                       value="Принять"></a>
+            <a href="{% url "reject_meet_request" meet_id user_to_print.pk %}"><input type="button"
+                                                                                      style="font-size: 1rem;
+                                                                                             padding: 3px;
+                                                                                             margin-left: 10px"
+                                                                                      value="Отклонить"></a>
         {% endif %}
     {% endif %}
 </div>
