@@ -6,12 +6,12 @@ import uuid
 
 from django.dispatch import receiver
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, m2m_changed, post_delete
 from django.utils import timezone
 from django.conf import settings
 from celery.result import AsyncResult
 
-from .models import Profile, WishList, Meeting
+from .models import Profile, WishList, Meeting, FriendshipQuery
 from . import tasks
 from .services import send_notification
 
@@ -61,7 +61,7 @@ def create_meet_player_status_notification(sender, **kwargs):
     action = kwargs.get("action")
     pk_set = kwargs.get("pk_set")
     instance = kwargs.get("instance")  # type: Meeting or User
-    datetime_format = "%x в %X"
+    datetime_format = "%d.%m.%Y в %H:M"
 
     # Запрос на участие принят
     if action == "post_add":
@@ -118,4 +118,46 @@ def create_meet_request_notification(sender, **kwargs):
         message = f'К сожалению, создатель <a href="{instance.get_absolute_url()}">встречи</a> ' \
                   f'({dt.datetime.combine(instance.date, instance.time).strftime(datetime_format)})' \
                   f' отклонил Ваш запрос на участие.'
+        send_notification(pk_set, message)
+
+
+@receiver(post_save, sender=FriendshipQuery)
+def create_new_friendship_query_notification(sender, **kwargs):
+    """ Отправляет уведомление пользователю, когда ему поступает запрос на добавление в друзья """
+    instance = kwargs["instance"]  # type: FriendshipQuery
+    s = instance.sender
+    r = instance.receiver
+    message = f'Пользователь <a href="{s.profile.get_absolute_url()}">{s.get_full_name()}</a> ' \
+              f'отправил вам запрос на добавление в друзья.'
+    send_notification([r.pk], message)
+
+
+@receiver(post_delete, sender=FriendshipQuery)
+def create_reject_friendship_query_notification(sender, **kwargs):
+    """ Отправляет уведомление пользователю об отклонении запроса на добавление в друзья """
+    instance = kwargs["instance"]  # type: FriendshipQuery
+    s = instance.sender
+    r = instance.receiver
+    if s not in r.profile.friendlist.all():
+        message = f'Ваш запрос пользователю ' \
+                  f'<a href="{r.profile.get_absolute_url()}">{r.get_full_name()}</a> ' \
+                  f'на добавление в друзья отменен.'
+        send_notification([s.pk], message)
+
+
+@receiver(m2m_changed, sender=Profile.friendlist.through)
+def create_add_delete_from_friendlist_notification(sender, **kwargs):
+    """ Отправляет уведомления при удалении или добавление во френдлист второму пользователю"""
+    action = kwargs.get("action")
+    pk_set = kwargs.get("pk_set")
+    instance = kwargs.get("instance")
+    reverse = kwargs.get("reverse")
+    # проверка на reverse нужна для предотвращения дублирования уведомлений
+    if action == "post_add" and not reverse:
+        message = f'Пользователь <a href="{instance.get_absolute_url()}">{instance.user.get_full_name()}</a> ' \
+                  f'принял Ваш запрос на добавление в друзья!'
+        send_notification(pk_set, message)
+    elif action == "post_remove" and not reverse:
+        message = f'Пользователь <a href="{instance.get_absolute_url()}">{instance.user.get_full_name()}</a> ' \
+                  f'удалил Вас из списка друзей'
         send_notification(pk_set, message)

@@ -250,7 +250,7 @@ class ProfilesList(LoginRequiredMixin, ListView):
     login_url = "log_in"
     redirect_field_name = "next"
     template_name = "users/profile_list.html"
-    paginate_by = 12
+    paginate_by = 6
     context_object_name = "profiles"
 
     def get_queryset(self):
@@ -411,9 +411,19 @@ class MeetDetail(DetailView):
     context_object_name = "meet"
     template_name = "users/meet_detail.html"
 
+    def get(self, request, *args, **kwargs):
+        """ Создатель встречи перенаправляется на страницу управления встречей """
+        user = request.user
+        if user.is_authenticated:
+            meet_pk = self.kwargs.get("meet_pk")
+            meet_creator = Meeting.objects.get(pk=meet_pk).creator
+            if user == meet_creator:
+                return redirect("manage_meeting", meet_pk)
+        return super(MeetDetail, self).get(request, *args, **kwargs)
+
     def get_object(self, queryset=None):
         try:
-            meet = Meeting.objects.prefetch_related('players').get(pk=self.kwargs["meet_pk"])
+            meet = Meeting.objects.prefetch_related('players', 'in_request').get(pk=self.kwargs["meet_pk"])
             return meet
         except ObjectDoesNotExist:
             raise Http404

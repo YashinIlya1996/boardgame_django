@@ -17,8 +17,19 @@
             <div class="detail-left">
                 <img src="{{ game.photo.url }}" alt="Ooooops..">
                 <hr>
-                <span><img src="{% static "img/rating_icon.png" %}" alt="Oooops.." height="40px"></span>
-                <span><strong>{{ game.bgg_rating|default_if_none:" - " }}</strong></span>
+                <p><span><img src="{% static "img/rating_icon.png" %}" alt="Oooops.." height="40px"></span>
+                    <span><strong>{{ game.bgg_rating|default_if_none:" - " }}</strong></span></p>
+                <p><span><strong>Год:</strong></span>
+                    <span><strong>{{ game.release_year|default:" - " }}</strong></span></p>
+                <p><span>⏳</span>
+                    <span><strong>{{ game.avg_game_time|default:" - " }} мин. </strong></span></p>
+                <p><span>👪</span>
+                    {% if game.min_players_count or game.max_players_count %}
+                        <span><strong>от {{ game.min_players_count }} до {{ game.max_players_count }}</strong></span>
+                    {% else %}
+                        <span><stron> - </stron></span>
+                    {% endif %}
+                </p>
             </div>
             <div class="detail-main">
                 <h3>Описание:</h3>

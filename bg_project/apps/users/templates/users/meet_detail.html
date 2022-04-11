@@ -12,12 +12,24 @@
     <div class="main-container">
         <div class="meet-header">
             <h2>Общее описание</h2>
-            <p><b>Создатель встречи:</b> {{ meet.creator.get_full_name|default:meet.creator.username }}</p>
+            <p><b>Создатель встречи:</b> {{ meet.creator.get_full_name|default:meet.creator.username }}
+                (<a href="{{ meet.creator.profile.get_absolute_url }}">{{ meet.creator.username }}</a>)</p>
             <p><b>Дата: </b>{{ meet.date|date:"j E Y (l)" }}</p>
             <p><b>Время: </b>{{ meet.time|time:"H:i" }}</p>
             <p><b>Место проведения: </b>{{ meet.location }}</p>
             <p><b>Описание: </b>{{ meet.description }}</p>
             <p><b>Количество участников: </b>{{ meet.players.count }}</p>
+            {% if user.is_authenticated %}
+                {% if user in meet.players.all %}
+                    <a href="{% url "leave_meet" meet.pk %}"><input type="button" value="Покинуть встречу"></a>
+                {% elif user in meet.in_request.all %}
+                    <a href="{% url "leave_meet" meet.pk %}"><input type="button"
+                                                                    value="Отменить запрос на участие"></a>
+                {% else %}
+                    <a href="{% url "send_meet_request" meet.pk %}"><input type="button"
+                                                                    value="Отправить запрос на участие"></a>
+                {% endif %}
+            {% endif %}
         </div>
         <hr>
         <div class="meet-players">

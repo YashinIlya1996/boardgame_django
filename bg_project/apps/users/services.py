@@ -45,13 +45,15 @@ def is_friends(user1, user2):
 def make_friends(user1, user2):
     """ Взаимно добавляет пользователей во френдлисты """
     user1.friends_profiles.add(user2.profile)
-    user2.friends_profiles.add(user1.profile)
+    user1.profile.friendlist.add(user2)
+    # user2.friends_profiles.add(user1.profile)
 
 
 def unmake_friends(user1, user2):
     """ Взаимно удаляет пользователей из френдлистов """
     user1.friends_profiles.remove(user2.profile)
-    user2.friends_profiles.remove(user1.profile)
+    user1.profile.friendlist.remove(user2)
+    # user2.friends_profiles.remove(user1.profile)
 
 
 def is_meet_creator(request, meet_id):
@@ -67,11 +69,10 @@ def send_meet_soon_notifications(meet_id: int):
     mail = EmailMessage(
         to=emails,
         subject="Скоро состоится встреча",
-        body=f"""Уважаемый пользователь! Это письмо направлено вам, потому что вы принимаете участие во встрече,
-                которая состоится {meet.date.strftime('%d.%m.%Y')} в {meet.time.strftime('%H:%M')} 
-                по адресу {meet.location}. Приятной игры! 
-                P.S. Для уточнения деталей Вы можете связаться с организатором встречи по email: {meet.creator.email}"""
-
+        body=f"Уважаемый пользователь! Это письмо направлено вам, потому что вы принимаете участие во встрече, " 
+             f"которая состоится {meet.date.strftime('%d.%m.%Y')} в {meet.time.strftime('%H:%M')} " 
+             f"по адресу {meet.location}. Приятной игры! " 
+             f"P.S. Для уточнения деталей Вы можете связаться с организатором встречи по email: {meet.creator.email}"
     )
     for _ in range(10):  # Письмо отправляется 10 раз, если отправка не успешная
         send_ok = mail.send(fail_silently=True)
