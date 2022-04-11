@@ -21,6 +21,7 @@ def clear_search_data(request):
     Удаляет из сессии поисковый запрос и редиректит на предыдущую страницу
     """
     request.session["search"] = None
+    request.session["search_user"] = None
     return redirect(request.GET.get("next") or "all_games")
 
 

@@ -13,6 +13,7 @@ from .forms import UserLoginForm, MyUserCreationForms, ProfileEditForm, ConfirmE
 from .models import WishList, Profile, FriendshipQuery, Meeting, Notification
 from bg_project.apps.boardgames.models import BoardGame
 from .services import (apply_search_query_games,
+                       apply_search_query_profiles,
                        is_friends,
                        make_friends,
                        unmake_friends,
@@ -85,7 +86,7 @@ class UsersWishlistView(LoginRequiredMixin, ListView):
     template_name = 'users/wishlist.html'
     paginate_by = 10
     context_object_name = "wishlist"
-    
+
     def get(self, *args, **kwargs):
         user_id = self.kwargs.get("user_id")
         if user_id:
@@ -268,12 +269,15 @@ class ProfilesList(LoginRequiredMixin, ListView):
     context_object_name = "profiles"
 
     def get_queryset(self):
-        return Profile.objects.exclude(user=self.request.user)
+        queryset = Profile.objects.exclude(user=self.request.user)
+        return apply_search_query_profiles(queryset, self.request)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=None, **kwargs)
         context["users_friends_profiles"] = self.request.user.friends_profiles.all()
         context["active"] = "profile"
+        if search := self.request.session.get("search_user"):
+            context["search_str"] = search
         return context
 
 
@@ -461,5 +465,3 @@ def read_notification(request, not_id=None):
         notification.is_read = True
         notification.save(update_fields=['is_read'])
     return redirect(request.META.get('HTTP_REFERER', reverse("profile_detail", args=[request.user.pk])))
-
-

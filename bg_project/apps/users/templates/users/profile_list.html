@@ -9,28 +9,36 @@
 {% endblock %}
 
 {% block content %}
-    {% include 'pagination.html' with page=page_obj  %}
+    {% include 'pagination.html' with page=page_obj %}
 
-    <div class="profiles-container">
-    {% for profile in profiles %}
-            <div class="profiles-item">
-                <a href="{% url "profile_detail" profile.user.id %}"><img src="
-                        
-                        {% if profile.photo %}{{ profile.photo.url }}{% else %}{% static 'img/no-avatar.png' %}{% endif %}"
-                        alt="Oooops"></a>
-                <p><strong>Username: </strong>{{ profile.user.username }}</p>
-                <p><strong>Имя: </strong>{{ profile.user.first_name|default:"Не указано" }}</p>
-                <p><strong>Фамилия: </strong>{{ profile.user.last_name|default:"Не указана" }}</p>
-                <p><strong>Пол: </strong>{{ profile.gender|default:"Не указан" }}</p>
-                <p><strong>Город: </strong>{{ profile.location|default:"Не указан" }}</p>
-                <p><strong>Bio: </strong>{{ profile.bio|truncatewords:10|default:"Информация не указана" }}</p>
-                {% if profile in users_friends_profiles %}
-                    <a href="{% url "delete_from_friendlist" profile.user.id %}"><input type="button" value="Удалить из друзей"></a>
-                {% else %}
-                    <a href="{% url "send_friendship_query" profile.user.id %}"><input type="button" value="Добавить в друзья"></a>
-                {% endif %}
-            </div>
-    {% endfor %}
+    {% if search_str %}
+        <h3 style="text-align: center">Пользователи, которые нашлись по запросу "{{ search_str }}": </h3>
+    {% endif %}
+    <div class="main-container">
+        <div class="profiles-container">
+            {% for profile in profiles %}
+                <div class="profiles-item">
+                    <a href="{% url "profile_detail" profile.user.id %}"><img src="
+                            {% if profile.photo %}{{ profile.photo.url }}{% else %}{% static 'img/no-avatar.png' %}{% endif %}"
+                                                                              alt="Oooops"></a>
+                    <p><strong>Username: </strong>{{ profile.user.username }}</p>
+                    <p><strong>Имя: </strong>{{ profile.user.first_name|default:"Не указано" }}</p>
+                    <p><strong>Фамилия: </strong>{{ profile.user.last_name|default:"Не указана" }}</p>
+                    <p><strong>Пол: </strong>{{ profile.get_gender_display|default:"Не указан" }}</p>
+                    <p><strong>Город: </strong>{{ profile.location|default:"Не указан" }}</p>
+                    <p class="last">
+                        <strong>Bio: </strong>{{ profile.bio|default:"Информация не указана"|truncatewords:10 }}</p>
+                    {% if profile in users_friends_profiles %}
+                        <a href="{% url "delete_from_friendlist" profile.user.id %}"><input type="button"
+                                                                                            value="Удалить из друзей"></a>
+                    {% else %}
+                        <a href="{% url "send_friendship_query" profile.user.id %}"><input type="button"
+                                                                                           value="Добавить в друзья"></a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        {% include "sidebar.html" with search_name="search_user" %}
     </div>
-    {% include 'pagination.html' with page=page_obj  %}
+    {% include 'pagination.html' with page=page_obj %}
 {% endblock %}

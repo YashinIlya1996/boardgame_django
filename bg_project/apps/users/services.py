@@ -1,6 +1,7 @@
 """ Модуль для определения служебных функций """
 from django.core.mail import EmailMessage
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
 from . import models as user_models  # такой импорт для исключения циклического импорта
@@ -31,10 +32,22 @@ def get_user_profile_media_dir(instance, filename):
 
 
 def apply_search_query_games(queryset, request):
-    """ Применяет поисковый запрос к списку игр, переданный в запросе или хранящийся в сессии"""
+    """ Применяет поисковый запрос к списку игр, переданный в запросе или хранящийся в сессии """
     search = request.GET.get("search") or request.session.get("search") or ""
     request.session["search"] = search
-    return queryset.filter(title__icontains=search)
+    return queryset.filter(
+        Q(title__icontains=search) | Q(tesera_alias__icontains=search) | Q(description__icontains=search)
+    )
+
+
+def apply_search_query_profiles(queryset, request):
+    """ Применяет поисковый запрос к списку пользователей, переданный в запросе или хранящийся в сессии """
+    search = request.GET.get("search_user") or request.session.get("search_user") or ""
+    request.session["search_user"] = search
+    return queryset.filter(
+        Q(location__icontains=search) | Q(bio__icontains=search) | Q(user__first_name__icontains=search) |
+        Q(user__last_name__icontains=search) | Q(user__username__icontains=search)
+    )
 
 
 def is_friends(user1, user2):
@@ -69,9 +82,9 @@ def send_meet_soon_notifications(meet_id: int):
     mail = EmailMessage(
         to=emails,
         subject="Скоро состоится встреча",
-        body=f"Уважаемый пользователь! Это письмо направлено вам, потому что вы принимаете участие во встрече, " 
-             f"которая состоится {meet.date.strftime('%d.%m.%Y')} в {meet.time.strftime('%H:%M')} " 
-             f"по адресу {meet.location}. Приятной игры! " 
+        body=f"Уважаемый пользователь! Это письмо направлено вам, потому что вы принимаете участие во встрече, "
+             f"которая состоится {meet.date.strftime('%d.%m.%Y')} в {meet.time.strftime('%H:%M')} "
+             f"по адресу {meet.location}. Приятной игры! "
              f"P.S. Для уточнения деталей Вы можете связаться с организатором встречи по email: {meet.creator.email}"
     )
     for _ in range(10):  # Письмо отправляется 10 раз, если отправка не успешная
